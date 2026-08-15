@@ -5,7 +5,10 @@ support for the YYSLUPING NerdQaxe++ Rev 6.1 big-screen model. It keeps the
 upstream miner, AxeOS, pool, and tuning behavior while making the built-in
 display readable and fully usable at its actual resolution.
 
-![NerdQaxe++ Rev 6.1 running the big-screen interface](docs/images/nerdqaxepp-rev61-bigscreen.png)
+<img width="348" height="220" alt="Screenshot 2026-08-15 024342" src="https://github.com/user-attachments/assets/6f572a84-873e-4f29-ba31-b4f74aca2dc8" />
+<img width="540" height="361" alt="Screenshot 2026-08-15 024138" src="https://github.com/user-attachments/assets/0498dfab-f589-42b0-9780-c231306d6242" />
+<img width="542" height="363" alt="Screenshot 2026-08-15 024058" src="https://github.com/user-attachments/assets/af71895b-082b-4116-9344-b7adbfb2a1b2" />
+
 
 ## Release
 
