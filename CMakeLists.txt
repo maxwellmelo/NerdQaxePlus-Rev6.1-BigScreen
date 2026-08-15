@@ -15,6 +15,26 @@ endif()
 
 message(STATUS "Selected board: $ENV{BOARD}")
 
+# Keep display variants independent from the board definition so the upstream
+# NerdQaxe++ hardware behavior remains unchanged unless explicitly requested.
+if(DEFINED ENV{DISPLAY_PROFILE} AND NOT "$ENV{DISPLAY_PROFILE}" STREQUAL "")
+    if("$ENV{DISPLAY_PROFILE}" STREQUAL "YYSLUPING_480X320")
+        if(NOT "$ENV{BOARD}" STREQUAL "NERDQAXEPLUS2")
+            message(FATAL_ERROR
+                "DISPLAY_PROFILE=YYSLUPING_480X320 requires BOARD=NERDQAXEPLUS2")
+        endif()
+        set(NERDQAXE_DISPLAY_PROFILE "YYSLUPING_480X320" CACHE INTERNAL
+            "Selected NerdQaxe display profile" FORCE)
+    else()
+        message(FATAL_ERROR "Unsupported DISPLAY_PROFILE: $ENV{DISPLAY_PROFILE}")
+    endif()
+    message(STATUS "Selected display profile: $ENV{DISPLAY_PROFILE}")
+else()
+    set(NERDQAXE_DISPLAY_PROFILE "UPSTREAM" CACHE INTERNAL
+        "Selected NerdQaxe display profile" FORCE)
+    message(STATUS "Selected display profile: upstream default")
+endif()
+
 set(ENV{SOURCE_DATE_EPOCH} 0)
 
 

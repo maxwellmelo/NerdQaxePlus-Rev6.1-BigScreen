@@ -1,3 +1,83 @@
+# NerdQaxe++ Rev 6.1 Big-Screen Firmware
+
+This community fork adds a native 480 x 320 interface and 32 MB BOYA flash
+support for the YYSLUPING NerdQaxe++ Rev 6.1 big-screen model. It keeps the
+upstream miner, AxeOS, pool, and tuning behavior while making the built-in
+display readable and fully usable at its actual resolution.
+
+![NerdQaxe++ Rev 6.1 running the big-screen interface](docs/images/nerdqaxepp-rev61-bigscreen.png)
+
+## Release
+
+The hardware-tested release is
+[`v1.0.37.2-bigscreen.1`](https://github.com/XTVDDICT/NerdQaxePlus-Rev6.1-BigScreen/releases/tag/v1.0.37.2-bigscreen.1).
+
+- Firmware: `nerdqaxepp-rev61-bigscreen-v1.0.37.2-bigscreen.1.bin`
+- SHA-256: `1D94AC66E3EA142F4912EF7FA77B6B1792F4D3B81408CE51D157A33D2AD3537A`
+- Image size: 2,995,216 bytes
+- Base firmware: upstream `v1.0.37.2-LTS`
+
+### Compatibility
+
+Use this build only with the YYSLUPING NerdQaxe++ Rev 6.1 big-screen unit that
+reports board version `501`, has a 480 x 320 ST7789-compatible display, a BOYA
+BY25Q256FS 32 MB flash chip (JEDEC `0x684019`), and 8 MB PSRAM. It is not a
+generic NerdQaxe++ display update.
+
+The release binary is an application/OTA image, not a full-flash image. Back up
+your original firmware first, then install it through the normal AxeOS firmware
+update page. Do not write it at flash offset `0x0`, and do not erase the device.
+Existing NVS configuration is preserved by a normal OTA update, but keeping a
+backup is still strongly recommended.
+
+This release was built with ESP-IDF 5.3.3 and tested on one physical Rev 6.1
+unit under mining load. The display, web UI, both fans, all ASICs, temperature,
+power, hashrate, and whole-watt power formatting were exercised successfully.
+Faint remnants of the stock graphics on some panels are LCD image retention,
+not content drawn by this firmware.
+
+## Big-Screen Build
+
+Start from a clean build directory and explicitly select both the NerdQaxe++
+board and YYSLUPING display profile:
+
+```powershell
+$env:BOARD = 'NERDQAXEPLUS2'
+$env:DISPLAY_PROFILE = 'YYSLUPING_480X320'
+idf.py -B build-yysluping `
+  "-DSDKCONFIG=$PWD\build-yysluping\sdkconfig" `
+  "-DSDKCONFIG_DEFAULTS=$PWD\sdkconfig.defaults;$PWD\sdkconfig.yysluping.defaults" `
+  set-target esp32s3
+idf.py -B build-yysluping `
+  "-DSDKCONFIG=$PWD\build-yysluping\sdkconfig" `
+  "-DSDKCONFIG_DEFAULTS=$PWD\sdkconfig.defaults;$PWD\sdkconfig.yysluping.defaults" `
+  build
+```
+
+Leaving `DISPLAY_PROFILE` unset preserves the upstream 320 x 170 display path.
+The profile is rejected at configure time for boards other than
+`NERDQAXEPLUS2`.
+
+## Changes In This Fork
+
+- Adds an opt-in `YYSLUPING_480X320` display profile.
+- Rebuilds the mining, settings, market, network, setup, splash, QR, error, and
+  shutdown screens for 480 x 320.
+- Adds exact-ID support for the BOYA BY25Q256FS 32 MB SPI flash.
+- Matches the unit's stock 32 MB partition layout and 5 MB OTA slots.
+- Displays power as whole watts on the big-screen layout so the value remains
+  legible.
+- Leaves upstream behavior unchanged when the big-screen profile is not chosen.
+
+## Upstream And License
+
+This project is based on
+[`shufps/ESP-Miner-NerdQAxePlus`](https://github.com/shufps/ESP-Miner-NerdQAxePlus).
+Thanks to its maintainers and the Bitaxe, NerdAxe, and NerdQaxe contributors.
+The source remains licensed under GPL-3.0; see [LICENSE](LICENSE).
+
+---
+
 [![](https://dcbadge.vercel.app/api/server/3E8ca2dkcC)](https://discord.gg/3E8ca2dkcC)
 
 # ESP-Miner-Nerdaxe version

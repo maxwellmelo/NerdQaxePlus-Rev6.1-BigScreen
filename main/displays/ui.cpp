@@ -16,6 +16,236 @@ UI::UI() {
 
 static const char *TAG="ui";
 
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+namespace {
+
+constexpr uint32_t BIG_BG = 0x0E1113;
+constexpr uint32_t BIG_HEADER = 0x181E22;
+constexpr uint32_t BIG_PANEL = 0x1E2529;
+constexpr uint32_t BIG_PANEL_ALT = 0x252E33;
+constexpr uint32_t BIG_TEXT = 0xF4F7F8;
+constexpr uint32_t BIG_MUTED = 0xA8B3B9;
+constexpr uint32_t BIG_GREEN = 0x58D68D;
+constexpr uint32_t BIG_ORANGE = 0xF7931A;
+constexpr uint32_t BIG_CYAN = 0x54C7EC;
+
+void bigScreenBase(lv_obj_t *screen)
+{
+    lv_obj_set_style_bg_color(screen, lv_color_hex(BIG_BG), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(screen, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_all(screen, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
+}
+
+lv_obj_t *bigPanel(lv_obj_t *screen, int x, int y, int width, int height, uint32_t color)
+{
+    lv_obj_t *panel = lv_obj_create(screen);
+    lv_obj_set_pos(panel, x, y);
+    lv_obj_set_size(panel, width, height);
+    lv_obj_set_style_bg_color(panel, lv_color_hex(color), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(panel, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(panel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(panel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_all(panel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_clear_flag(panel, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_move_background(panel);
+    return panel;
+}
+
+lv_obj_t *bigText(lv_obj_t *parent, const char *text, int x, int y, int width,
+                  const lv_font_t *font, uint32_t color, lv_text_align_t align = LV_TEXT_ALIGN_LEFT)
+{
+    lv_obj_t *label = lv_label_create(parent);
+    lv_label_set_text(label, text);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_CLIP);
+    lv_obj_set_pos(label, x, y);
+    lv_obj_set_size(label, width, LV_SIZE_CONTENT);
+    lv_obj_set_style_text_font(label, font, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(label, lv_color_hex(color), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(label, align, LV_PART_MAIN | LV_STATE_DEFAULT);
+    return label;
+}
+
+void bigValue(lv_obj_t *label, int x, int y, int width, const lv_font_t *font,
+              uint32_t color, lv_text_align_t align = LV_TEXT_ALIGN_LEFT)
+{
+    lv_obj_set_align(label, LV_ALIGN_TOP_LEFT);
+    lv_obj_set_pos(label, x, y);
+    lv_obj_set_size(label, width, LV_SIZE_CONTENT);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_CLIP);
+    lv_obj_set_style_text_font(label, font, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(label, lv_color_hex(color), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(label, align, LV_PART_MAIN | LV_STATE_DEFAULT);
+}
+
+void bigRemoveLegacyImage(lv_obj_t *&image)
+{
+    if (image != nullptr) {
+        lv_obj_del(image);
+        image = nullptr;
+    }
+}
+
+} // namespace
+
+void UI::applyBigScreenSplashLayout(lv_obj_t *screen, lv_obj_t *image)
+{
+    bigScreenBase(screen);
+    lv_img_set_zoom(image, 384);
+    lv_img_set_antialias(image, true);
+    lv_obj_align(image, LV_ALIGN_CENTER, 0, 0);
+}
+
+void UI::applyBigScreenPortalLayout()
+{
+    bigScreenBase(ui_PortalScreen);
+    bigRemoveLegacyImage(ui_Image1);
+
+    lv_obj_t *header = bigPanel(ui_PortalScreen, 0, 0, 480, 58, BIG_HEADER);
+    bigText(header, "NERDQAXE++", 18, 14, 220, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigText(header, "SETUP MODE", 300, 18, 160, &ui_font_OpenSansBold14, BIG_CYAN, LV_TEXT_ALIGN_RIGHT);
+
+    lv_obj_t *body = bigPanel(ui_PortalScreen, 0, 58, 480, 262, BIG_PANEL);
+    bigText(body, "CONNECT TO WI-FI", 28, 40, 424, &ui_font_OpenSansBold14, BIG_MUTED, LV_TEXT_ALIGN_CENTER);
+    bigText(body, "Network", 28, 91, 424, &ui_font_OpenSansBold13, BIG_MUTED, LV_TEXT_ALIGN_CENTER);
+    bigText(body, "Open 192.168.4.1 after connecting", 28, 174, 424,
+            &ui_font_OpenSansBold14, BIG_TEXT, LV_TEXT_ALIGN_CENTER);
+
+    bigValue(ui_lbSSID, 30, 166, 420, &ui_font_OpenSansBold24, BIG_GREEN, LV_TEXT_ALIGN_CENTER);
+}
+
+void UI::applyBigScreenMiningLayout()
+{
+    bigScreenBase(ui_MiningScreen);
+    bigRemoveLegacyImage(ui_Image2);
+
+    lv_obj_t *header = bigPanel(ui_MiningScreen, 0, 0, 480, 52, BIG_HEADER);
+    bigText(header, "NERDQAXE++", 16, 12, 190, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigText(header, "ASIC", 210, 18, 48, &ui_font_OpenSansBold13, BIG_MUTED);
+
+    lv_obj_t *hashPanel = bigPanel(ui_MiningScreen, 0, 52, 306, 158, BIG_BG);
+    bigText(hashPanel, "HASHRATE", 18, 16, 160, &ui_font_OpenSansBold14, BIG_MUTED);
+    bigText(hashPanel, "UPTIME", 18, 112, 80, &ui_font_OpenSansBold13, BIG_MUTED);
+
+    lv_obj_t *telemetry = bigPanel(ui_MiningScreen, 306, 52, 174, 158, BIG_PANEL_ALT);
+    bigText(telemetry, "TEMP C", 14, 15, 74, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(telemetry, "FAN RPM", 14, 48, 74, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(telemetry, "POWER", 14, 81, 74, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(telemetry, "BEST DIFF", 14, 114, 82, &ui_font_OpenSansBold13, BIG_MUTED);
+
+    lv_obj_t *electrical = bigPanel(ui_MiningScreen, 0, 210, 480, 110, BIG_PANEL);
+    bigText(electrical, "INPUT", 16, 18, 96, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(electrical, "VCORE", 136, 18, 96, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(electrical, "CURRENT", 256, 18, 96, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(electrical, "EFF. J/TH", 376, 18, 94, &ui_font_OpenSansBold13, BIG_MUTED);
+
+    bigValue(ui_lbASIC, 260, 15, 92, &ui_font_OpenSansBold14, BIG_GREEN);
+    bigValue(ui_lbIP, 350, 17, 114, &lv_font_montserrat_14, BIG_CYAN, LV_TEXT_ALIGN_RIGHT);
+    bigValue(ui_lbHashrate, 18, 84, 274, &ui_font_OpenSansBold45, BIG_TEXT);
+    bigValue(ui_lbTime, 18, 178, 270, &ui_font_OpenSansBold14, BIG_GREEN);
+    bigValue(ui_lbTemp, 398, 65, 66, &ui_font_OpenSansBold24, BIG_TEXT, LV_TEXT_ALIGN_RIGHT);
+    bigValue(ui_lbRPM, 388, 98, 76, &ui_font_OpenSansBold24, BIG_TEXT, LV_TEXT_ALIGN_RIGHT);
+    bigValue(ui_lbPower, 380, 131, 84, &ui_font_OpenSansBold24, BIG_ORANGE, LV_TEXT_ALIGN_RIGHT);
+    bigValue(ui_lbBestDifficulty, 382, 164, 82, &ui_font_OpenSansBold24, BIG_TEXT, LV_TEXT_ALIGN_RIGHT);
+    bigValue(ui_lbVinput, 16, 254, 104, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigValue(ui_lbVcore, 136, 254, 104, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigValue(ui_lbIntensidad, 256, 254, 104, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigValue(ui_lbEficiency, 376, 254, 88, &ui_font_OpenSansBold24, BIG_GREEN);
+}
+
+void UI::applyBigScreenSettingsLayout()
+{
+    bigScreenBase(ui_SettingsScreen);
+    bigRemoveLegacyImage(ui_Image4);
+
+    lv_obj_t *header = bigPanel(ui_SettingsScreen, 0, 0, 480, 52, BIG_HEADER);
+    bigText(header, "MINER SETTINGS", 16, 12, 230, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigText(header, "IP", 282, 18, 34, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(header, "POOL", 404, 18, 44, &ui_font_OpenSansBold13, BIG_MUTED);
+
+    lv_obj_t *tuning = bigPanel(ui_SettingsScreen, 0, 52, 240, 175, BIG_PANEL);
+    bigText(tuning, "CORE VOLTAGE mV", 18, 15, 204, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(tuning, "FREQUENCY MHz", 18, 70, 204, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(tuning, "FAN MODE / PERCENT", 18, 125, 204, &ui_font_OpenSansBold13, BIG_MUTED);
+
+    lv_obj_t *pool = bigPanel(ui_SettingsScreen, 240, 52, 240, 175, BIG_PANEL_ALT);
+    bigText(pool, "POOL HOST", 18, 15, 204, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(pool, "PORT", 18, 91, 204, &ui_font_OpenSansBold13, BIG_MUTED);
+
+    lv_obj_t *status = bigPanel(ui_SettingsScreen, 0, 227, 480, 93, BIG_BG);
+    bigText(status, "HASHRATE", 18, 13, 138, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(status, "BEST DIFF", 176, 13, 128, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(status, "SHARES A/R", 334, 13, 128, &ui_font_OpenSansBold13, BIG_MUTED);
+
+    bigValue(ui_lbIPSet, 316, 17, 82, &lv_font_montserrat_14, BIG_CYAN, LV_TEXT_ALIGN_RIGHT);
+    bigValue(ui_lbPoolNr, 448, 15, 20, &ui_font_OpenSansBold14, BIG_GREEN, LV_TEXT_ALIGN_RIGHT);
+    bigValue(ui_lbVcoreSet, 18, 86, 204, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigValue(ui_lbFreqSet, 18, 141, 204, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigValue(ui_lbFanSet, 18, 196, 204, &ui_font_OpenSansBold24, BIG_GREEN);
+    bigValue(ui_lbPoolSet, 258, 86, 204, &ui_font_OpenSansBold24, BIG_TEXT);
+    lv_label_set_long_mode(ui_lbPoolSet, LV_LABEL_LONG_DOT);
+    bigValue(ui_lbPortSet, 258, 162, 204, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigValue(ui_lbHashrateSet, 18, 263, 138, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigValue(ui_lbBestDifficultySet, 176, 263, 128, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigValue(ui_lbShares, 334, 263, 128, &ui_font_OpenSansBold24, BIG_GREEN);
+}
+
+void UI::applyBigScreenBTCLayout()
+{
+    bigScreenBase(ui_BTCScreen);
+    bigRemoveLegacyImage(ui_ImgBTCscreen);
+
+    lv_obj_t *header = bigPanel(ui_BTCScreen, 0, 0, 480, 52, BIG_HEADER);
+    bigText(header, "BITCOIN MARKET", 16, 12, 260, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigText(header, "BTC / USD", 336, 18, 128, &ui_font_OpenSansBold14, BIG_ORANGE, LV_TEXT_ALIGN_RIGHT);
+
+    lv_obj_t *price = bigPanel(ui_BTCScreen, 0, 52, 480, 168, BIG_BG);
+    bigText(price, "CURRENT PRICE", 20, 26, 440, &ui_font_OpenSansBold14, BIG_MUTED, LV_TEXT_ALIGN_CENTER);
+
+    lv_obj_t *miner = bigPanel(ui_BTCScreen, 0, 220, 240, 100, BIG_PANEL);
+    bigText(miner, "MINER HASHRATE", 18, 17, 204, &ui_font_OpenSansBold13, BIG_MUTED, LV_TEXT_ALIGN_CENTER);
+    lv_obj_t *thermal = bigPanel(ui_BTCScreen, 240, 220, 240, 100, BIG_PANEL_ALT);
+    bigText(thermal, "CHIP TEMP C", 18, 17, 204, &ui_font_OpenSansBold13, BIG_MUTED, LV_TEXT_ALIGN_CENTER);
+
+    bigValue(ui_lblBTCPrice, 20, 112, 440, &ui_font_OpenSansBold45, BIG_ORANGE, LV_TEXT_ALIGN_CENTER);
+    bigValue(ui_lblHashPrice, 18, 263, 204, &ui_font_OpenSansBold24, BIG_TEXT, LV_TEXT_ALIGN_CENTER);
+    bigValue(ui_lblTempPrice, 258, 263, 204, &ui_font_OpenSansBold24, BIG_GREEN, LV_TEXT_ALIGN_CENTER);
+}
+
+void UI::applyBigScreenGlobalStatsLayout()
+{
+    bigScreenBase(ui_GlobalStats);
+    bigRemoveLegacyImage(ui_Image5);
+
+    lv_obj_t *header = bigPanel(ui_GlobalStats, 0, 0, 480, 52, BIG_HEADER);
+    bigText(header, "BITCOIN NETWORK", 16, 12, 280, &ui_font_OpenSansBold24, BIG_TEXT);
+
+    lv_obj_t *fees = bigPanel(ui_GlobalStats, 0, 52, 480, 66, BIG_PANEL_ALT);
+    bigText(fees, "FEES SAT/VB", 16, 9, 110, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(fees, "LOW", 158, 9, 76, &ui_font_OpenSansBold13, BIG_MUTED, LV_TEXT_ALIGN_CENTER);
+    bigText(fees, "MED", 272, 9, 76, &ui_font_OpenSansBold13, BIG_MUTED, LV_TEXT_ALIGN_CENTER);
+    bigText(fees, "HIGH", 386, 9, 76, &ui_font_OpenSansBold13, BIG_MUTED, LV_TEXT_ALIGN_CENTER);
+
+    lv_obj_t *network = bigPanel(ui_GlobalStats, 0, 118, 480, 94, BIG_PANEL);
+    bigText(network, "DIFFICULTY", 18, 14, 204, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(network, "NETWORK HASH EH/S", 258, 14, 204, &ui_font_OpenSansBold13, BIG_MUTED);
+
+    lv_obj_t *chain = bigPanel(ui_GlobalStats, 0, 212, 480, 108, BIG_BG);
+    bigText(chain, "BLOCK", 18, 14, 130, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(chain, "HALVING", 174, 14, 130, &ui_font_OpenSansBold13, BIG_MUTED);
+    bigText(chain, "BLOCKS LEFT", 330, 14, 132, &ui_font_OpenSansBold13, BIG_MUTED);
+
+    bigValue(ui_lbllowFee, 158, 81, 76, &ui_font_OpenSansBold24, BIG_GREEN, LV_TEXT_ALIGN_CENTER);
+    bigValue(ui_lblmedFee, 272, 81, 76, &ui_font_OpenSansBold24, BIG_ORANGE, LV_TEXT_ALIGN_CENTER);
+    bigValue(ui_lblhighFee, 386, 81, 76, &ui_font_OpenSansBold24, BIG_TEXT, LV_TEXT_ALIGN_CENTER);
+    bigValue(ui_lblDifficulty, 18, 154, 204, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigValue(ui_lblGlobalHash, 258, 154, 204, &ui_font_OpenSansBold24, BIG_CYAN);
+    bigValue(ui_lblBlock, 18, 259, 130, &ui_font_OpenSansBold24, BIG_TEXT);
+    bigValue(ui_lblHalvingPercent, 174, 259, 130, &ui_font_OpenSansBold24, BIG_ORANGE);
+    bigValue(ui_lblBlocksToHalving, 330, 259, 132, &ui_font_OpenSansBold24, BIG_TEXT);
+}
+#endif
+
 ///////////////////// FUNCTIONS ////////////////////
 
 void on_screen_loaded(lv_event_t * e)
@@ -43,6 +273,10 @@ void UI::splash1ScreenInit(void)
 
     // Liberar memoria de imágenes no utilizadas
     lv_img_cache_invalidate_src(m_theme->getSplashscreen2());
+
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+    applyBigScreenSplashLayout(ui_Splash1, ui_imgSplash1);
+#endif
 }
 
 void UI::splash2ScreenInit(void)
@@ -74,6 +308,11 @@ void UI::splash2ScreenInit(void)
 
     // Liberar memoria de imágenes no utilizadas
     lv_img_cache_invalidate_src(m_theme->getInitscreen2());
+
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+    applyBigScreenSplashLayout(ui_Splash2, ui_Image1);
+    bigValue(ui_lbConnect, 268, 84, 184, &ui_font_OpenSansBold24, BIG_TEXT, LV_TEXT_ALIGN_RIGHT);
+#endif
 }
 
 void UI::portalScreenInit(void)
@@ -106,6 +345,10 @@ void UI::portalScreenInit(void)
 
     // Liberar memoria de imágenes no utilizadas
     lv_img_cache_invalidate_src(m_theme->getInitscreen2());
+
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+    applyBigScreenPortalLayout();
+#endif
 }
 
 void UI::miningScreenInit(void)
@@ -267,6 +510,9 @@ void UI::miningScreenInit(void)
     lv_obj_add_event_cb(ui_MiningScreen, on_screen_loaded, LV_EVENT_SCREEN_LOADED, m_display);
 
     // lv_obj_add_event_cb(ui_MiningScreen, ui_event_MiningScreen, LV_EVENT_ALL, NULL);
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+    applyBigScreenMiningLayout();
+#endif
 }
 void UI::settingsScreenInit(void)
 {
@@ -401,6 +647,10 @@ void UI::settingsScreenInit(void)
     lv_obj_set_style_text_align(ui_lbPortSet, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbPortSet, &ui_font_OpenSansBold13, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_add_event_cb(ui_SettingsScreen, on_screen_loaded, LV_EVENT_SCREEN_LOADED, m_display);
+
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+    applyBigScreenSettingsLayout();
+#endif
 }
 
 void UI::logScreenInit(void)
@@ -484,6 +734,10 @@ void UI::bTCScreenInit(void)
     lv_obj_set_style_text_align(ui_lblTempPrice, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lblTempPrice, &ui_font_OpenSansBold24, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_add_event_cb(ui_BTCScreen, on_screen_loaded, LV_EVENT_SCREEN_LOADED, m_display);
+
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+    applyBigScreenBTCLayout();
+#endif
 }
 
 void UI::globalStatsScreenInit(void)
@@ -596,6 +850,9 @@ void UI::globalStatsScreenInit(void)
     lv_obj_set_style_text_font(ui_lblhighFee, &ui_font_OpenSansBold13, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_add_event_cb(ui_GlobalStats, on_screen_loaded, LV_EVENT_SCREEN_LOADED, m_display);
 
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+    applyBigScreenGlobalStatsLayout();
+#endif
 }
 void UI::createQRScreen(uint8_t *buf, int size) {
     if (!buf || size <= 0) {
@@ -604,7 +861,11 @@ void UI::createQRScreen(uint8_t *buf, int size) {
     }
 
     const int quiet = 4;
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+    const int max_px = 240;
+#else
     const int max_px = 160;
+#endif
     const int n     = size;                          // modules per side
     const int scale = std::max(2, max_px / (n + 2*quiet));
     const int img   = (n + 2*quiet) * scale;         // final pixels per side
@@ -640,7 +901,11 @@ void UI::createQRScreen(uint8_t *buf, int size) {
         lv_obj_set_style_text_font(label, &ui_font_OpenSansBold14, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
 
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+        const int screen_w = 480;
+#else
         const int screen_w = 320;
+#endif
         const int label_area_w = screen_w / 2;
 
         lv_obj_set_width(label, label_area_w - 20); // small margin inside left half
@@ -687,6 +952,10 @@ void UI::powerOffScreenInit(void)
     lv_obj_t *img = lv_img_create(ui_PowerOffScreen);
     lv_img_set_src(img, &ui_img_safe_png);
     lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);  // Center of screen
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+    lv_img_set_zoom(img, 384);
+    lv_img_set_antialias(img, true);
+#endif
     lv_obj_add_event_cb(ui_PowerOffScreen, on_screen_loaded, LV_EVENT_SCREEN_LOADED, m_display);
 }
 
@@ -746,6 +1015,16 @@ void UI::showErrorOverlay(const char *error_message, uint32_t error_code)
     //lv_obj_set_style_text_font(code_label, &lv_font_unscii_8, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(code_label, &ui_font_vt323_21, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(code_label, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+    lv_obj_set_size(ui_errOverlayContainer, 420, 126);
+    lv_obj_align(ui_errOverlayContainer, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_width(error_label, 390);
+    lv_label_set_long_mode(error_label, LV_LABEL_LONG_WRAP);
+    lv_obj_set_y(error_label, 6);
+    lv_obj_set_width(code_label, 390);
+    lv_obj_set_y(code_label, -6);
+#endif
 }
 
 void UI::hideErrorOverlay()

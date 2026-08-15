@@ -41,3 +41,14 @@ config.cvs
 managed_components/*
 release/
 esp-miner-*.bin
+
+# Local YYSLUPING development and device-recovery files
+build-*/
+artifacts/
+private-device-backups/
+BIGSCREEN_BUILD.md
+BIGSCREEN_HARDWARE_NOTES.md
+BUILD_NOTES.md
+FULLSCREEN_TRIAL.md
+STOCK_BACKUP_NOTES.md
+TRIAL_FLASH.md

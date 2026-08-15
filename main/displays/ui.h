@@ -98,6 +98,15 @@ protected:
     void showImageOverlay(const lv_img_dsc_t *img);
     void hideImageOverlay();
 
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+    void applyBigScreenSplashLayout(lv_obj_t *screen, lv_obj_t *image);
+    void applyBigScreenPortalLayout();
+    void applyBigScreenMiningLayout();
+    void applyBigScreenSettingsLayout();
+    void applyBigScreenBTCLayout();
+    void applyBigScreenGlobalStatsLayout();
+#endif
+
     // QR
     void createQRScreen(uint8_t *buf, int size);
     void destroyQRScreen();
