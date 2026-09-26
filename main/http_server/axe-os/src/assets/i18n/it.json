@@ -31,7 +31,8 @@
     "SWARM": "Sciame",
     "INFLUXDB": "InfluxDB",
     "ALERTS": "Avvisi",
-    "SECURITY": "Sicurezza"
+    "SECURITY": "Sicurezza",
+    "SCREENS": "Schermate"
   },
   "HOME": {
     "HASH_RATE": "Velocità di hash",
@@ -559,5 +560,28 @@
     "THIS_DEVICE_FORGOTTEN": "Questo browser è stato dimenticato.",
     "NO_TRUSTED_DEVICE_HELP": "Nessuna sessione attendibile in questo browser. Le azioni protette richiederanno un codice a 6 cifre fino a quando non scegli \"Ricorda questo browser\".",
     "NOT_TRUSTED": "Non attendibile"
+  },
+  "SCREENS": {
+    "TITLE": "Schermate",
+    "DESCRIPTION": "Configura quali schermate vengono mostrate sul display del miner e per quanto tempo ciascuna rimane visualizzata.",
+    "DEFAULT_SECS": "Tempo predefinito (s)",
+    "APPLY_TO_ALL": "Applica a tutte",
+    "ACTIVE_TOGGLE_LABEL": "Attiva schermata",
+    "SECONDS_LABEL": "Secondi",
+    "CYCLE_SUMMARY": "{{count}} schermate attive · ciclo completo di {{minutes}} min {{seconds}} s",
+    "NO_ACTIVE_SCREENS": "Deve essere attiva almeno una schermata.",
+    "INVALID_SECONDS": "Inserisci un numero intero tra {{min}} e {{max}} secondi.",
+    "UNSUPPORTED_FIRMWARE": "Il firmware installato non supporta ancora questa impostazione.",
+    "SETTINGS_SAVED": "Impostazioni delle schermate salvate correttamente.",
+    "SETTINGS_SAVE_FAILED": "Impossibile salvare le impostazioni delle schermate.",
+    "LOADING_FAILED": "Impossibile caricare le impostazioni delle schermate.",
+    "DISCARD": "Annulla modifiche",
+    "POWER_BILL_TITLE": "Bolletta elettrica",
+    "POWER_BILL_DESCRIPTION": "Tieni traccia del costo elettrico stimato di questo miner inserendo la tua valuta locale e il prezzo per kWh.",
+    "CURRENCY_LABEL": "Valuta",
+    "INVALID_CURRENCY": "Inserisci un simbolo di valuta tra 1 e 4 caratteri.",
+    "PRICE_PER_KWH_LABEL": "Prezzo per kWh",
+    "PRICE_PER_KWH_PLACEHOLDER": "es. 0,95",
+    "INVALID_PRICE_PER_KWH": "Inserisci un numero tra {{min}} e {{max}}."
   }
 }

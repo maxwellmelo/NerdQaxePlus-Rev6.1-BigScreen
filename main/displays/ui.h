@@ -99,7 +99,7 @@ protected:
     void hideImageOverlay();
 
 #ifdef DISPLAY_PROFILE_YYSLUPING_480X320
-    void applyBigScreenSplashLayout(lv_obj_t *screen, lv_obj_t *image);
+    void applyBigScreenSplashLayout(lv_obj_t *screen, lv_obj_t *&image, const char *subtitle);
     void applyBigScreenPortalLayout();
     void applyBigScreenMiningLayout();
     void applyBigScreenSettingsLayout();

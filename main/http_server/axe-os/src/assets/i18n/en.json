@@ -31,7 +31,8 @@
     "SWARM": "Swarm",
     "INFLUXDB": "InfluxDB",
     "ALERTS": "Alerts",
-    "SECURITY": "Security"
+    "SECURITY": "Security",
+    "SCREENS": "Screens"
   },
   "HOME": {
     "HASH_RATE": "Hash Rate",
@@ -559,5 +560,28 @@
     "THIS_DEVICE_FORGOTTEN": "This browser has been forgotten.",
     "NO_TRUSTED_DEVICE_HELP": "No trusted session in this browser. Protected actions will ask for a 6-digit code until you choose “Remember this browser”.",
     "NOT_TRUSTED": "Not trusted"
+  },
+  "SCREENS": {
+    "TITLE": "Screens",
+    "DESCRIPTION": "Configure which screens are shown on the miner's display and how long each one stays on screen.",
+    "DEFAULT_SECS": "Default time (s)",
+    "APPLY_TO_ALL": "Apply to all",
+    "ACTIVE_TOGGLE_LABEL": "Enable screen",
+    "SECONDS_LABEL": "Seconds",
+    "CYCLE_SUMMARY": "{{count}} active screens · full cycle of {{minutes}} min {{seconds}} s",
+    "NO_ACTIVE_SCREENS": "At least one screen must be enabled.",
+    "INVALID_SECONDS": "Enter a whole number between {{min}} and {{max}} seconds.",
+    "UNSUPPORTED_FIRMWARE": "The installed firmware does not support this setting yet.",
+    "SETTINGS_SAVED": "Screen settings saved successfully.",
+    "SETTINGS_SAVE_FAILED": "Could not save screen settings.",
+    "LOADING_FAILED": "Failed to load screen settings.",
+    "DISCARD": "Discard",
+    "POWER_BILL_TITLE": "Power bill",
+    "POWER_BILL_DESCRIPTION": "Track the estimated electricity cost of running this miner by entering your local currency and price per kWh.",
+    "CURRENCY_LABEL": "Currency",
+    "INVALID_CURRENCY": "Enter a currency symbol between 1 and 4 characters.",
+    "PRICE_PER_KWH_LABEL": "Price per kWh",
+    "PRICE_PER_KWH_PLACEHOLDER": "e.g. 0.95",
+    "INVALID_PRICE_PER_KWH": "Enter a number between {{min}} and {{max}}."
   }
 }

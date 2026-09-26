@@ -1,3 +1,45 @@
+# Mining-state screen rodizio (main/displays/screens/): hardcoded to the
+# 480x320 layout and only ever wired up from displayDriver.cpp under
+# #ifdef DISPLAY_PROFILE_YYSLUPING_480X320, so it is only worth compiling
+# (and only worth the flash) on that profile. ui_state.cpp/ui_data_weak.cpp
+# stay OUT of this list and always in SRCS below: they are plain data
+# structures/link-safety stubs with nothing 480x320-specific, and
+# main/http_server/handler_system.cpp (built for every profile) already
+# depends on the ui_data.h symbols ui_data_weak.cpp stubs.
+set(SCREEN_ROTATION_SRCS "")
+if(NERDQAXE_DISPLAY_PROFILE STREQUAL "YYSLUPING_480X320")
+    # Screens (sNN_*.cpp) and their bitmap fonts are picked up by glob, so
+    # porting a screen or adding a font never touches this file (several
+    # screens are ported in parallel). CONFIGURE_DEPENDS re-runs the glob on
+    # every build.
+    file(GLOB NQ_SCREEN_SRCS CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/displays/screens/s[0-9][0-9]_*.cpp")
+    file(GLOB NQ_FONT_SRCS CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/displays/fonts/*.c")
+    list(APPEND SCREEN_ROTATION_SRCS
+        "./displays/screens/screen_registry.cpp"
+        "./displays/screens/screen_manager.cpp"
+        ${NQ_SCREEN_SRCS}
+        ${NQ_FONT_SRCS}
+    )
+endif()
+
+# Legacy theme image set (main/displays/images/themes/themes.c): ~1.14 MB of
+# PNG image data for 9 legacy themes x 7 images each, #include'd as a single
+# translation unit. The 480x320 (YYSLUPING) profile's screens (screens/*.cpp)
+# don't use Theme images at all, so on that profile themes.c is excluded from
+# SRCS entirely to save flash/binary size. Theme.h gives every Theme member a
+# `= nullptr` default and the ThemeXxx subclass constructor bodies are
+# `#ifndef DISPLAY_PROFILE_YYSLUPING_480X320`-guarded (empty on this profile),
+# so nothing in the 480x320 build still references the ui_img_* symbols that
+# only exist inside themes.c, and it is safe to drop from the link.
+set(THEMES_SRCS "")
+if(NOT NERDQAXE_DISPLAY_PROFILE STREQUAL "YYSLUPING_480X320")
+    list(APPEND THEMES_SRCS
+        "./displays/images/themes/themes.c"
+    )
+endif()
+
 idf_component_register(
 SRCS
     "main.cpp"
@@ -5,6 +47,8 @@ SRCS
     "system.cpp"
     "sntp.cpp"
     "utils.cpp"
+    "thermal_governor.cpp"
+    "./ui_data.cpp"
     "boards/board.cpp"
     "boards/nerdaxe.cpp"
     "boards/nerdaxegamma.cpp"
@@ -70,6 +114,9 @@ SRCS
     "./displays/ui_ipc.cpp"
     "./displays/button.cpp"
     "./displays/ui_helpers.cpp"
+    "./displays/ui_state.cpp"
+    "./displays/ui_data_weak.cpp"
+    ${SCREEN_ROTATION_SRCS}
     "./displays/images/ui_font_DigitalNumbers16.c"
     "./displays/images/ui_font_DigitalNumbers28.c"
     "./displays/images/ui_font_DigitalNumbers16.c"
@@ -81,7 +128,7 @@ SRCS
     "./displays/images/ui_font_vt323_35.c"
     "./displays/images/ui_img_found_block_png.c"
     "./displays/images/ui_img_safe_png.c"
-    "./displays/images/themes/themes.c"
+    ${THEMES_SRCS}
     "./otp/otp.cpp"
     "./otp/qrcodegen.cpp"
 

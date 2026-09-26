@@ -31,7 +31,8 @@
     "SWARM": "Roi",
     "INFLUXDB": "InfluxDB",
     "ALERTS": "Alerte",
-    "SECURITY": "Securitate"
+    "SECURITY": "Securitate",
+    "SCREENS": "Ecrane"
   },
   "HOME": {
     "HASH_RATE": "Rata de hash",
@@ -559,5 +560,28 @@
     "THIS_DEVICE_FORGOTTEN": "Acest browser a fost uitat.",
     "NO_TRUSTED_DEVICE_HELP": "Nicio sesiune de încredere în acest browser. Acțiunile protejate vor solicita un cod de 6 cifre până când alegeți \"Ține minte acest browser\".",
     "NOT_TRUSTED": "Neîncredere"
+  },
+  "SCREENS": {
+    "TITLE": "Ecrane",
+    "DESCRIPTION": "Configurați ce ecrane sunt afișate pe display-ul minerului și cât timp rămâne fiecare pe ecran.",
+    "DEFAULT_SECS": "Timp implicit (s)",
+    "APPLY_TO_ALL": "Aplică la toate",
+    "ACTIVE_TOGGLE_LABEL": "Activează ecranul",
+    "SECONDS_LABEL": "Secunde",
+    "CYCLE_SUMMARY": "{{count}} ecrane active · ciclu complet de {{minutes}} min {{seconds}} s",
+    "NO_ACTIVE_SCREENS": "Cel puțin un ecran trebuie să fie activ.",
+    "INVALID_SECONDS": "Introduceți un număr întreg între {{min}} și {{max}} secunde.",
+    "UNSUPPORTED_FIRMWARE": "Firmware-ul instalat nu acceptă încă această setare.",
+    "SETTINGS_SAVED": "Setările ecranelor au fost salvate cu succes.",
+    "SETTINGS_SAVE_FAILED": "Nu s-au putut salva setările ecranelor.",
+    "LOADING_FAILED": "Nu s-au putut încărca setările ecranelor.",
+    "DISCARD": "Renunță",
+    "POWER_BILL_TITLE": "Factură de energie",
+    "POWER_BILL_DESCRIPTION": "Urmăriți costul estimat al energiei electrice pentru acest miner introducând moneda locală și prețul pe kWh.",
+    "CURRENCY_LABEL": "Monedă",
+    "INVALID_CURRENCY": "Introduceți un simbol monetar cu 1 până la 4 caractere.",
+    "PRICE_PER_KWH_LABEL": "Preț pe kWh",
+    "PRICE_PER_KWH_PLACEHOLDER": "ex. 0,95",
+    "INVALID_PRICE_PER_KWH": "Introduceți un număr între {{min}} și {{max}}."
   }
 }

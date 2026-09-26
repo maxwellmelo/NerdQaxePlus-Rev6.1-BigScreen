@@ -31,7 +31,8 @@
     "SWARM": "Schwarm",
     "INFLUXDB": "InfluxDB",
     "ALERTS": "Benachrichtigungen",
-    "SECURITY": "Sicherheit"
+    "SECURITY": "Sicherheit",
+    "SCREENS": "Bildschirme"
   },
   "HOME": {
     "HASH_RATE": "Hash-Rate",
@@ -557,5 +558,28 @@
     "THIS_DEVICE_FORGOTTEN": "Dieser Browser wurde vergessen.",
     "NO_TRUSTED_DEVICE_HELP": "Keine vertrauenswürdige Sitzung in diesem Browser. Geschützte Aktionen erfordern einen 6-stelligen Code, bis du „Diesen Browser merken“ auswählst.",
     "NOT_TRUSTED": "Nicht vertrauenswürdig"
+  },
+  "SCREENS": {
+    "TITLE": "Bildschirme",
+    "DESCRIPTION": "Lege fest, welche Bildschirme auf dem Miner-Display angezeigt werden und wie lange jeder davon sichtbar bleibt.",
+    "DEFAULT_SECS": "Standardzeit (s)",
+    "APPLY_TO_ALL": "Auf alle anwenden",
+    "ACTIVE_TOGGLE_LABEL": "Bildschirm aktivieren",
+    "SECONDS_LABEL": "Sekunden",
+    "CYCLE_SUMMARY": "{{count}} aktive Bildschirme · vollständiger Zyklus von {{minutes}} Min {{seconds}} Sek",
+    "NO_ACTIVE_SCREENS": "Mindestens ein Bildschirm muss aktiviert sein.",
+    "INVALID_SECONDS": "Geben Sie eine ganze Zahl zwischen {{min}} und {{max}} Sekunden ein.",
+    "UNSUPPORTED_FIRMWARE": "Die installierte Firmware unterstützt diese Einstellung noch nicht.",
+    "SETTINGS_SAVED": "Bildschirmeinstellungen erfolgreich gespeichert.",
+    "SETTINGS_SAVE_FAILED": "Bildschirmeinstellungen konnten nicht gespeichert werden.",
+    "LOADING_FAILED": "Laden der Bildschirmeinstellungen fehlgeschlagen.",
+    "DISCARD": "Verwerfen",
+    "POWER_BILL_TITLE": "Stromrechnung",
+    "POWER_BILL_DESCRIPTION": "Verfolge die geschätzten Stromkosten dieses Miners, indem du deine lokale Währung und den Preis pro kWh eingibst.",
+    "CURRENCY_LABEL": "Währung",
+    "INVALID_CURRENCY": "Gib ein Währungssymbol mit 1 bis 4 Zeichen ein.",
+    "PRICE_PER_KWH_LABEL": "Preis pro kWh",
+    "PRICE_PER_KWH_PLACEHOLDER": "z. B. 0,95",
+    "INVALID_PRICE_PER_KWH": "Gib eine Zahl zwischen {{min}} und {{max}} ein."
   }
 }

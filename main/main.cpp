@@ -1,8 +1,11 @@
 #include <string.h>
 
+#include "esp_attr.h"
 #include "esp_event.h"
 #include "esp_log.h"
 #include "esp_netif.h"
+#include "esp_ota_ops.h"
+#include "esp_partition.h"
 #include "esp_task_wdt.h"
 #include "mbedtls/platform.h"
 #include "nvs_flash.h"
@@ -36,6 +39,7 @@
 #include "stratum/stratum_manager_fallback.h"
 #include "stratum/stratum_manager_dual_pool.h"
 #include "system.h"
+#include "ui_data.h"
 #include "wifi_health.h"
 #include "guards.h"
 #include "utils.h"
@@ -63,6 +67,94 @@ static const char *TAG = "nerd*axe";
 #ifndef CONFIG_SPIRAM
 #error "firmware will not work without psram"
 #endif
+
+// ---------------------------------------------------------------------------
+// Delivery safety net: crash-loop guard
+// ---------------------------------------------------------------------------
+//
+// Counts consecutive reboots caused by a panic or a watchdog. RTC_NOINIT_ATTR
+// survives a software reset but not a power cycle, so the magic validates the
+// counter before it is trusted.
+//
+//   >= 2 crashes -> the governor is forced off for this session (RAM only,
+//                   NVS untouched; reported as governor.forcedOff in the API)
+//   >= 4 crashes -> the factory app is selected and the device reboots
+//
+// The counter is cleared after 10 minutes of stable uptime.
+
+#define CRASH_GUARD_MAGIC 0x4E514747u // "NQGG"
+#define CRASH_GUARD_GOVERNOR_OFF 2
+#define CRASH_GUARD_FACTORY 4
+#define CRASH_GUARD_STABLE_US (600ll * 1000000ll)
+
+RTC_NOINIT_ATTR static uint32_t s_crashGuardMagic;
+RTC_NOINIT_ATTR static uint32_t s_crashGuardCount;
+
+esp_err_t switch_to_factory_partition()
+{
+    const esp_partition_t *factory =
+        esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_FACTORY, NULL);
+    if (!factory) {
+        ESP_LOGE(TAG, "no factory partition found");
+        return ESP_ERR_NOT_FOUND;
+    }
+
+    // esp_ota_set_boot_partition() first validates the image and, for the
+    // factory subtype, simply erases the whole otadata partition
+    // (esp-idf 5.3.3, components/app_update/esp_ota_ops.c, lines 499-507:
+    //  "if set boot partition to factory bin ,just format ota info partition"
+    //  -> esp_partition_erase_range(otadata, 0, otadata->size)), which makes
+    // the bootloader fall back to factory. An invalid factory image returns
+    // ESP_ERR_OTA_VALIDATE_FAILED and erases nothing.
+    esp_err_t err = esp_ota_set_boot_partition(factory);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "esp_ota_set_boot_partition(factory) failed: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    ESP_LOGW(TAG, "otadata erased - the next boot will run the factory app");
+    return ESP_OK;
+}
+
+static uint32_t crash_guard_update(esp_reset_reason_t reason)
+{
+    if (s_crashGuardMagic != CRASH_GUARD_MAGIC) {
+        s_crashGuardMagic = CRASH_GUARD_MAGIC;
+        s_crashGuardCount = 0;
+    }
+
+    bool crashed = (reason == ESP_RST_PANIC) || (reason == ESP_RST_INT_WDT) || (reason == ESP_RST_TASK_WDT) ||
+                   (reason == ESP_RST_WDT);
+    if (crashed) {
+        s_crashGuardCount++;
+        ESP_LOGW(TAG, "crash-loop guard: %lu consecutive crash reboots", (unsigned long) s_crashGuardCount);
+    }
+
+    if (s_crashGuardCount >= CRASH_GUARD_FACTORY) {
+        ESP_LOGE(TAG, "crash-loop guard: %d crashes - falling back to the factory app", CRASH_GUARD_FACTORY);
+        // clear first so a failed attempt cannot turn into a reboot loop
+        s_crashGuardCount = 0;
+        if (switch_to_factory_partition() == ESP_OK) {
+            esp_restart();
+        }
+    }
+
+    return s_crashGuardCount;
+}
+
+static void crash_guard_clear_when_stable(int64_t bootUs)
+{
+    static bool cleared = false;
+    if (cleared || s_crashGuardCount == 0) {
+        return;
+    }
+    if (esp_timer_get_time() - bootUs < CRASH_GUARD_STABLE_US) {
+        return;
+    }
+    s_crashGuardCount = 0;
+    cleared = true;
+    ESP_LOGI(TAG, "crash-loop guard: 10 min of stable uptime, counter reset");
+}
 
 uint64_t now_ms()
 {
@@ -203,8 +295,13 @@ extern "C" void app_main(void)
     ESP_LOGI(TAG, "Welcome to the Nerd*Axe - hack the planet!");
     ESP_ERROR_CHECK(nvs_flash_init());
 
+    int64_t bootUs = esp_timer_get_time();
+
     // shows and saves last reset reason
     esp_reset_reason_t reason = SYSTEM_MODULE.showLastResetReason();
+
+    // delivery safety net: may not return (falls back to factory on 4 crashes)
+    uint32_t crashCount = crash_guard_update(reason);
 
     // migrate config
     Config::migrate_config();
@@ -266,6 +363,17 @@ extern "C" void app_main(void)
 
     STRATUM_MANAGER->loadSettings();
 
+    // Two crashes in a row: don't let the governor near the hardware in this
+    // session. RAM only - the NVS setting is left untouched.
+    if (crashCount >= CRASH_GUARD_GOVERNOR_OFF) {
+        POWER_MANAGEMENT_MODULE.forceGovernorOff();
+    }
+
+    // Display data layer (main/ui_data.cpp): allocates its ~31KB internal
+    // state in PSRAM. Must run before POWER_MANAGEMENT_MODULE's task starts,
+    // since that task calls uiDataTick() every 2s from its own loop.
+    uiDataInit();
+
     xTaskCreate(SYSTEM_MODULE.taskWrapper, "SYSTEM_task", 4096, &SYSTEM_MODULE, 3, NULL);
     xTaskCreate(POWER_MANAGEMENT_MODULE.taskWrapper, "power mangement", 8192, (void *) &POWER_MANAGEMENT_MODULE, 10, NULL);
 
@@ -297,6 +405,21 @@ extern "C" void app_main(void)
             discordAlerter.sendWatchdogAlert();
         }
 
+        // With the governor active the ASICs come up at gv_fmin with the curve
+        // voltage instead of jumping straight to the saved (ceiling) pair. That
+        // removes the ~130 W boot spike on a 120 W supply; the governor then
+        // holds for 60 s (STARTUP) before it starts ramping.
+        {
+            int gvFreq = 0;
+            int gvMillis = 0;
+            if (!POWER_MANAGEMENT_MODULE.isGovernorForcedOff() &&
+                PowerManagementTask::governorStartupPoint(board, gvFreq, gvMillis)) {
+                ESP_LOGI(TAG, "governor active: starting the ASICs at %dMHz / %dmV (ceiling %dMHz / %dmV)", gvFreq,
+                         gvMillis, board->getAsicFrequency(), board->getAsicVoltageMillis());
+                board->setInitOperatingPoint(gvFreq, gvMillis);
+            }
+        }
+
         // and continue with initialization
         POWER_MANAGEMENT_MODULE.lock();
         if (!board->initAsics()) {
@@ -319,6 +442,8 @@ extern "C" void app_main(void)
     // char* taskList = (char*) malloc(8192);
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(10000));
+
+        crash_guard_clear_when_stable(bootUs);
 
         if (POWER_MANAGEMENT_MODULE.isShutdown()) {
             // not needed, we deregister the WDT in the stratumtask on shutdown

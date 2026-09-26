@@ -1,0 +1,12 @@
+{
+  "name": "nqpp-fonts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pipeline local para baixar fontes Google Fonts (OFL) e gerar bitmaps LVGL v8 (.c, 4bpp) para o firmware NerdQAxe++.",
+  "scripts": {
+    "generate": "powershell -ExecutionPolicy Bypass -File generate-fonts.ps1"
+  },
+  "devDependencies": {
+    "lv_font_conv": "^1.5.3"
+  }
+}

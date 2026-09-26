@@ -156,7 +156,9 @@ bool NerdQaxePlus::initAsics()
 
     // set the init voltage
     // use the higher voltage for initialization
-    setVoltage((float) MAX(m_initVoltageMillis, m_asicVoltageMillis) / 1000.0f);
+    // getInitVoltageMillis() is the saved voltage unless the governor asked for
+    // a different startup operating point
+    setVoltage((float) MAX(m_initVoltageMillis, getInitVoltageMillis()) / 1000.0f);
 
     // wait 500ms
     vTaskDelay(pdMS_TO_TICKS(500));
@@ -170,7 +172,7 @@ bool NerdQaxePlus::initAsics()
     vTaskDelay(pdMS_TO_TICKS(250));
 
     SERIAL_clear_buffer();
-    m_chipsDetected = m_asics->init(m_asicFrequency, m_asicCount, m_asicMaxDifficulty, m_vrFrequency);
+    m_chipsDetected = m_asics->init(getInitFrequency(), m_asicCount, m_asicMaxDifficulty, m_vrFrequency);
     if (!m_chipsDetected) {
         ESP_LOGE(TAG, "error initializing asics!");
         return false;
@@ -184,7 +186,7 @@ bool NerdQaxePlus::initAsics()
     vTaskDelay(pdMS_TO_TICKS(500));
 
     // set final output voltage
-    setVoltage((float) m_asicVoltageMillis / 1000.0f);
+    setVoltage((float) getInitVoltageMillis() / 1000.0f);
 
     m_isInitialized = true;
     return true;

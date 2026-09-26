@@ -52,3 +52,13 @@ BUILD_NOTES.md
 FULLSCREEN_TRIAL.md
 STOCK_BACKUP_NOTES.md
 TRIAL_FLASH.md
+
+# Local build outputs (16 MB profile, web image, host simulator/tests)
+build-16mb/
+build-www*/
+tools/sim/build*/
+tools/fonts/node_modules/
+test/host_*/build*/
+test/host_*/*.exe
+test/host_*/test_governor
+test/host_*/test_ui_data

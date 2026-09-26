@@ -31,7 +31,8 @@
     "SWARM": "Enjambre",
     "INFLUXDB": "InfluxDB",
     "ALERTS": "Alertas",
-    "SECURITY": "Seguridad"
+    "SECURITY": "Seguridad",
+    "SCREENS": "Pantallas"
   },
   "HOME": {
     "HASH_RATE": "Tasa de Hash",
@@ -549,5 +550,28 @@
     "THIS_DEVICE_FORGOTTEN": "Este navegador ha sido olvidado.",
     "NO_TRUSTED_DEVICE_HELP": "No hay una sesión de confianza en este navegador. Las acciones protegidas solicitarán un código de 6 dígitos hasta que elijas « Recordar este navegador ».",
     "NOT_TRUSTED": "No de confianza"
+  },
+  "SCREENS": {
+    "TITLE": "Pantallas",
+    "DESCRIPTION": "Configura qué pantallas se muestran en la pantalla del minero y cuánto tiempo permanece cada una en pantalla.",
+    "DEFAULT_SECS": "Tiempo predeterminado (s)",
+    "APPLY_TO_ALL": "Aplicar a todas",
+    "ACTIVE_TOGGLE_LABEL": "Activar pantalla",
+    "SECONDS_LABEL": "Segundos",
+    "CYCLE_SUMMARY": "{{count}} pantallas activas · ciclo completo de {{minutes}} min {{seconds}} s",
+    "NO_ACTIVE_SCREENS": "Debe haber al menos una pantalla activa.",
+    "INVALID_SECONDS": "Introduce un número entero entre {{min}} y {{max}} segundos.",
+    "UNSUPPORTED_FIRMWARE": "El firmware instalado todavía no admite esta configuración.",
+    "SETTINGS_SAVED": "Configuración de pantallas guardada exitosamente.",
+    "SETTINGS_SAVE_FAILED": "No se pudo guardar la configuración de pantallas.",
+    "LOADING_FAILED": "Error al cargar la configuración de pantallas.",
+    "DISCARD": "Descartar",
+    "POWER_BILL_TITLE": "Factura eléctrica",
+    "POWER_BILL_DESCRIPTION": "Realiza el seguimiento del costo eléctrico estimado de este minero ingresando tu moneda local y el precio por kWh.",
+    "CURRENCY_LABEL": "Moneda",
+    "INVALID_CURRENCY": "Introduce un símbolo de moneda de entre 1 y 4 caracteres.",
+    "PRICE_PER_KWH_LABEL": "Precio por kWh",
+    "PRICE_PER_KWH_PLACEHOLDER": "ej. 0.95",
+    "INVALID_PRICE_PER_KWH": "Introduce un número entre {{min}} y {{max}}."
   }
 }

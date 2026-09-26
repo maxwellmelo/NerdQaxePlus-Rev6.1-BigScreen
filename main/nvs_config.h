@@ -59,6 +59,37 @@
 #define NVS_CONFIG_FAN1_PID_D    "fan1_pid_d"
 #define NVS_CONFIG_FAN1_OVERHEAT "fan1_overheat"
 
+// Thermal / electrical governor (all keys <= 15 chars)
+#define NVS_CONFIG_GV_ENABLE     "gv_enable"      // 0 = off, 1 = active, 2 = shadow
+#define NVS_CONFIG_GV_VR_TARGET  "gv_vr_target"   // degC
+#define NVS_CONFIG_GV_VRI_TARGET "gv_vri_target"  // degC
+#define NVS_CONFIG_GV_IOUT_MAX   "gv_iout_max"    // A          (0 = constraint off)
+#define NVS_CONFIG_GV_VIN_MIN    "gv_vin_min"     // mV         (0 = constraint off)
+#define NVS_CONFIG_GV_PIN_MAX    "gv_pin_max"     // W          (0 = constraint off)
+#define NVS_CONFIG_GV_IIN_MAX    "gv_iin_max"     // 0.1 A      (0 = constraint off)
+#define NVS_CONFIG_GV_FMIN       "gv_fmin"        // MHz
+#define NVS_CONFIG_GV_VMIN       "gv_vmin"        // mV
+#define NVS_CONFIG_GV_VSAG_MV    "gv_vsag_mv"     // mV
+#define NVS_CONFIG_GV_HR_MIN     "gv_hr_min"      // %
+#define NVS_CONFIG_GV_CURVE      "gv_curve"       // "f:mV,f:mV,..."
+
+// Display data layer (main/ui_data.*): energy tariff, screen rotation, timezone.
+#define NVS_CONFIG_TARIFA        "tarifa"         // cents/kWh, u16
+#define NVS_CONFIG_SCR_MASK      "scr_mask"       // bit N = screen N enabled, u64 (32 bits used)
+#define NVS_CONFIG_SCR_SECS      "scr_secs"       // seconds per screen, u16
+#define NVS_CONFIG_SCR_DURS      "scr_durs"       // per-screen override, blob of NVS_SCR_DURS_COUNT u16 (0 = use scr_secs)
+#define NVS_CONFIG_CURRENCY      "currency"       // power-bill currency symbol, string (e.g. "R$")
+#define NVS_CONFIG_TZ            "tz"             // POSIX TZ string, e.g. "<-03>3"
+
+// Kept in sync with UI_MAX_SCREENS (main/ui_data.h) by convention, not by a
+// shared header: nvs_config.h must not depend on ui_data.h.
+#define NVS_SCR_DURS_COUNT 32
+
+// Internal bookkeeping for the kWh-today counter (main/ui_data.cpp), so it
+// survives a reboot on the same local day. Not user-facing.
+#define NVS_CONFIG_UI_KWH_WH     "ui_kwh_wh"      // accumulated Wh "today", u64
+#define NVS_CONFIG_UI_KWH_EPOCH  "ui_kwh_ep"      // wall-clock epoch of that value, u64
+
 #define NVS_CONFIG_ALERT_DISCORD_WATCHDOG_ENABLE "alrt_disc_en"
 #define NVS_CONFIG_ALERT_DISCORD_URL    "alrt_disc_url"
 #define NVS_CONFIG_ALERT_DISCORD_BLOCK_FOUND_ENABLE "alrt_disc_bf_en"
@@ -109,6 +140,8 @@
 #endif
 
 #include <stdint.h>
+#include <stddef.h>
+#include <string.h>
 
 namespace Config {
     char* nvs_config_get_string(const char* key, const char* default_value);
@@ -118,6 +151,8 @@ namespace Config {
     bool nvs_config_has_u16(const char* key);
     uint64_t nvs_config_get_u64(const char* key, uint64_t default_value);
     void nvs_config_set_u64(const char* key, uint64_t value);
+    bool nvs_config_get_blob(const char* key, void* out, size_t len);
+    void nvs_config_set_blob(const char* key, const void* data, size_t len);
 
     // ---- String Getters ----
     inline char* getWifiSSID() { return nvs_config_get_string(NVS_CONFIG_WIFI_SSID, CONFIG_ESP_WIFI_SSID); }
@@ -336,6 +371,90 @@ namespace Config {
 
     inline void setOTPEnabled(bool value) { nvs_config_set_u16(NVS_CONFIG_OTP_ENABLED, value ? 1 : 0); }
     inline bool isOTPEnabled() { return nvs_config_get_u16(NVS_CONFIG_OTP_ENABLED, 0) != 0; }
+
+    // ---- Thermal / electrical governor ----
+    // Defaults mirror a calibration sweep measured on the real hardware. A
+    // limit of 0 disables that constraint; the governor itself is off by default.
+    inline uint16_t getGovEnable()    { return nvs_config_get_u16(NVS_CONFIG_GV_ENABLE, 0); }
+    inline uint16_t getGovVrTarget()  { return nvs_config_get_u16(NVS_CONFIG_GV_VR_TARGET, 78); }
+    inline uint16_t getGovVriTarget() { return nvs_config_get_u16(NVS_CONFIG_GV_VRI_TARGET, 90); }
+    inline uint16_t getGovIoutMax()   { return nvs_config_get_u16(NVS_CONFIG_GV_IOUT_MAX, 92); }
+    inline uint16_t getGovVinMinMv()  { return nvs_config_get_u16(NVS_CONFIG_GV_VIN_MIN, 11500); }
+    inline uint16_t getGovPinMax()    { return nvs_config_get_u16(NVS_CONFIG_GV_PIN_MAX, 0); }
+    inline uint16_t getGovIinMaxDA()  { return nvs_config_get_u16(NVS_CONFIG_GV_IIN_MAX, 0); }
+    inline uint16_t getGovFmin()      { return nvs_config_get_u16(NVS_CONFIG_GV_FMIN, 500); }
+    inline uint16_t getGovVmin()      { return nvs_config_get_u16(NVS_CONFIG_GV_VMIN, 1100); }
+    inline uint16_t getGovVsagMv()    { return nvs_config_get_u16(NVS_CONFIG_GV_VSAG_MV, 50); }
+    inline uint16_t getGovHrMinPerc() { return nvs_config_get_u16(NVS_CONFIG_GV_HR_MIN, 88); }
+    inline char*    getGovCurve()     { return nvs_config_get_string(NVS_CONFIG_GV_CURVE, "500:1100,725:1210,800:1250"); }
+
+    inline void setGovEnable(uint16_t v)    { nvs_config_set_u16(NVS_CONFIG_GV_ENABLE, v); }
+    inline void setGovVrTarget(uint16_t v)  { nvs_config_set_u16(NVS_CONFIG_GV_VR_TARGET, v); }
+    inline void setGovVriTarget(uint16_t v) { nvs_config_set_u16(NVS_CONFIG_GV_VRI_TARGET, v); }
+    inline void setGovIoutMax(uint16_t v)   { nvs_config_set_u16(NVS_CONFIG_GV_IOUT_MAX, v); }
+    inline void setGovVinMinMv(uint16_t v)  { nvs_config_set_u16(NVS_CONFIG_GV_VIN_MIN, v); }
+    inline void setGovPinMax(uint16_t v)    { nvs_config_set_u16(NVS_CONFIG_GV_PIN_MAX, v); }
+    inline void setGovIinMaxDA(uint16_t v)  { nvs_config_set_u16(NVS_CONFIG_GV_IIN_MAX, v); }
+    inline void setGovFmin(uint16_t v)      { nvs_config_set_u16(NVS_CONFIG_GV_FMIN, v); }
+    inline void setGovVmin(uint16_t v)      { nvs_config_set_u16(NVS_CONFIG_GV_VMIN, v); }
+    inline void setGovVsagMv(uint16_t v)    { nvs_config_set_u16(NVS_CONFIG_GV_VSAG_MV, v); }
+    inline void setGovHrMinPerc(uint16_t v) { nvs_config_set_u16(NVS_CONFIG_GV_HR_MIN, v); }
+    inline void setGovCurve(const char* v)  { nvs_config_set_string(NVS_CONFIG_GV_CURVE, v); }
+
+    // ---- Display data layer (main/ui_data.*) ----
+    // tarifa: cents/kWh (u16, so it also has NO decimals lost like a float
+    // would in NVS); the display/API divide by 100 to get R$/kWh.
+    inline uint16_t getTarifaCents()  { return nvs_config_get_u16(NVS_CONFIG_TARIFA, 95); }
+    inline void     setTarifaCents(uint16_t v) { nvs_config_set_u16(NVS_CONFIG_TARIFA, v); }
+
+    // scr_mask: bit N (N = screen number) = 1 means screen N rotates in.
+    // Default: screens 1,4,5,6,7,10,11,12,13,14,15,16,18,19,20.
+    inline uint32_t getScrMaskDefault() {
+        uint32_t m = 0;
+        const uint8_t screens[] = {1, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20};
+        for (uint8_t s : screens) m |= (1u << s);
+        return m;
+    }
+    inline uint32_t getScrMask() { return (uint32_t) nvs_config_get_u64(NVS_CONFIG_SCR_MASK, getScrMaskDefault()); }
+    inline void     setScrMask(uint32_t v) { nvs_config_set_u64(NVS_CONFIG_SCR_MASK, v); }
+
+    inline uint16_t getScrSecs() { return nvs_config_get_u16(NVS_CONFIG_SCR_SECS, 10); }
+    inline void     setScrSecs(uint16_t v) { nvs_config_set_u16(NVS_CONFIG_SCR_SECS, v); }
+
+    // Per-screen duration override, 0 = "use scr_secs" for that slot. Stored
+    // as one fixed-size blob (not one NVS key per screen) so a single
+    // get/set pair covers all NVS_SCR_DURS_COUNT slots. Falls back to all-0
+    // (every screen uses the global default) if the blob is missing or was
+    // written by an older firmware with a different size.
+    inline void getScrDurations(uint16_t out[NVS_SCR_DURS_COUNT]) {
+        if (!nvs_config_get_blob(NVS_CONFIG_SCR_DURS, out, sizeof(uint16_t) * NVS_SCR_DURS_COUNT)) {
+            for (int i = 0; i < NVS_SCR_DURS_COUNT; i++) out[i] = 0;
+        }
+    }
+    inline void setScrDurations(const uint16_t in[NVS_SCR_DURS_COUNT]) {
+        nvs_config_set_blob(NVS_CONFIG_SCR_DURS, in, sizeof(uint16_t) * NVS_SCR_DURS_COUNT);
+    }
+
+    // Power-bill currency symbol (GET/PATCH /api/system/screens's
+    // "powerBill.currency"), e.g. "R$", "$", "€".
+    inline char* getCurrency() { return nvs_config_get_string(NVS_CONFIG_CURRENCY, "R$"); }
+    inline void  setCurrency(const char* v) { nvs_config_set_string(NVS_CONFIG_CURRENCY, v); }
+
+    // Convenience wrapper: tarifa is stored as integer cents/kWh (see
+    // getTarifaCents above); the power-bill API works in the same
+    // currency's whole units per kWh.
+    inline float getTarifaPerKwh() { return (float) getTarifaCents() / 100.0f; }
+    inline void  setTarifaPerKwh(float v) { setTarifaCents((uint16_t) (v * 100.0f + 0.5f)); }
+
+    inline char* getTz() { return nvs_config_get_string(NVS_CONFIG_TZ, "<-03>3"); }
+    inline void  setTz(const char* v) { nvs_config_set_string(NVS_CONFIG_TZ, v); }
+
+    // internal: kWh-today persistence (written at most every 30 min by
+    // uiDataTick(), see main/ui_data.cpp)
+    inline uint64_t getUiEnergyWh()      { return nvs_config_get_u64(NVS_CONFIG_UI_KWH_WH, 0); }
+    inline void     setUiEnergyWh(uint64_t v)    { nvs_config_set_u64(NVS_CONFIG_UI_KWH_WH, v); }
+    inline uint64_t getUiEnergyEpochS()  { return nvs_config_get_u64(NVS_CONFIG_UI_KWH_EPOCH, 0); }
+    inline void     setUiEnergyEpochS(uint64_t v) { nvs_config_set_u64(NVS_CONFIG_UI_KWH_EPOCH, v); }
 
     void migrate_config();
 }

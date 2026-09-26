@@ -144,7 +144,12 @@ esp_err_t start_rest_server(void * pvParameters)
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.uri_match_fn = httpd_uri_match_wildcard;
-    config.max_uri_handlers = 35;
+    // 32 handlers registered below as of this comment (GET/PATCH/OPTIONS
+    // /api/system/screens added 3 more, see the block right after
+    // update_system_settings_uri/system_options_uri). Bumped from 35 to 40
+    // to keep real headroom for future routes instead of sitting exactly at
+    // the previous ceiling.
+    config.max_uri_handlers = 40;
     config.lru_purge_enable = true;
     config.max_open_sockets = 10;
     config.stack_size = 12288;
@@ -212,6 +217,19 @@ esp_err_t start_rest_server(void * pvParameters)
         .uri = "/api/system/reset-stats", .method = HTTP_POST, .handler = POST_reset_stats, .user_ctx = rest_context};
     httpd_register_uri_handler(http_server, &system_reset_stats_uri);
 
+    /* Boot the factory app on the next restart (way back from a bad OTA) */
+    httpd_uri_t system_boot_factory_uri = {
+        .uri = "/api/system/bootfactory", .method = HTTP_POST, .handler = POST_boot_factory, .user_ctx = rest_context};
+    httpd_register_uri_handler(http_server, &system_boot_factory_uri);
+
+    httpd_uri_t system_boot_factory_options_uri = {
+        .uri = "/api/system/bootfactory",
+        .method = HTTP_OPTIONS,
+        .handler = handle_options_request,
+        .user_ctx = NULL
+    };
+    httpd_register_uri_handler(http_server, &system_boot_factory_options_uri);
+
     httpd_uri_t system_shutdown_uri = {
         .uri = "/api/system/shutdown", .method = HTTP_POST, .handler = POST_shutdown, .user_ctx = rest_context};
     httpd_register_uri_handler(http_server, &system_shutdown_uri);
@@ -239,6 +257,23 @@ esp_err_t start_rest_server(void * pvParameters)
         .user_ctx = NULL,
     };
     httpd_register_uri_handler(http_server, &system_options_uri);
+
+    /* Per-screen display duration + power-bill config */
+    httpd_uri_t system_screens_get_uri = {
+        .uri = "/api/system/screens", .method = HTTP_GET, .handler = GET_system_screens, .user_ctx = rest_context};
+    httpd_register_uri_handler(http_server, &system_screens_get_uri);
+
+    httpd_uri_t system_screens_patch_uri = {
+        .uri = "/api/system/screens", .method = HTTP_PATCH, .handler = PATCH_update_screens, .user_ctx = rest_context};
+    httpd_register_uri_handler(http_server, &system_screens_patch_uri);
+
+    httpd_uri_t system_screens_options_uri = {
+        .uri = "/api/system/screens",
+        .method = HTTP_OPTIONS,
+        .handler = handle_options_request,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &system_screens_options_uri);
 
     httpd_uri_t update_otp_uri = {
         .uri = "/api/otp", .method = HTTP_PATCH, .handler = PATCH_update_otp, .user_ctx = rest_context};

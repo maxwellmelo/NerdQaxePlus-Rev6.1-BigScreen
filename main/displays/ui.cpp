@@ -5,6 +5,7 @@
 #include "displayDriver.h"
 #include "esp_log.h"
 #include "esp_timer.h"
+#include "esp_app_desc.h"
 #include "../macros.h"
 
 
@@ -88,12 +89,36 @@ void bigRemoveLegacyImage(lv_obj_t *&image)
 
 } // namespace
 
-void UI::applyBigScreenSplashLayout(lv_obj_t *screen, lv_obj_t *image)
+// Typographic splash for the big-screen (480x320) profile.
+//
+// Before: both splash screens drew a per-theme splash PNG
+// (Theme::getInitscreen2()/getSplashscreen2(), zoomed/antialiased via
+// lv_img_set_zoom/lv_img_set_antialias) picked up from `themes.c`.
+//
+// After: `themes.c` (~1.14 MB of legacy per-board theme PNGs across 9
+// themes) is excluded from the link entirely on this profile (see
+// main/CMakeLists.txt and themes.h), since none of the 480x320 screens use
+// Theme images any more. So instead of an image we delete the legacy
+// lv_img object (bigRemoveLegacyImage, same helper the other big-screen
+// layouts already use) and draw the "NerdQAxe++" wordmark as plain LVGL
+// text, in the same neutral system palette (BIG_BG/BIG_TEXT/BIG_MUTED)
+// used by the rest of this profile's chrome.
+//
+// Font: deliberately ui_font_OpenSansBold45, the same built-in bitmap font
+// already used elsewhere in this file (e.g. hashrate/BTC price), NOT the
+// new custom display fonts (Instrument Serif / Saira Condensed / Archivo)
+// another in-flight agent may still be generating - swapping the splash
+// title to a custom font later is a one-line change once those .c font
+// files exist and are wired into CMakeLists.txt.
+void UI::applyBigScreenSplashLayout(lv_obj_t *screen, lv_obj_t *&image, const char *subtitle)
 {
     bigScreenBase(screen);
-    lv_img_set_zoom(image, 384);
-    lv_img_set_antialias(image, true);
-    lv_obj_align(image, LV_ALIGN_CENTER, 0, 0);
+    bigRemoveLegacyImage(image);
+
+    bigText(screen, "NerdQAxe++", 0, 118, 480, &ui_font_OpenSansBold45, BIG_TEXT, LV_TEXT_ALIGN_CENTER);
+    if (subtitle != nullptr) {
+        bigText(screen, subtitle, 0, 188, 480, &ui_font_OpenSansBold14, BIG_MUTED, LV_TEXT_ALIGN_CENTER);
+    }
 }
 
 void UI::applyBigScreenPortalLayout()
@@ -275,7 +300,15 @@ void UI::splash1ScreenInit(void)
     lv_img_cache_invalidate_src(m_theme->getSplashscreen2());
 
 #ifdef DISPLAY_PROFILE_YYSLUPING_480X320
-    applyBigScreenSplashLayout(ui_Splash1, ui_imgSplash1);
+    {
+        // Dynamic firmware version subtitle under the "NerdQAxe++" title,
+        // read from the app descriptor (same source handler_system.cpp
+        // uses for its "version" field) rather than a hardcoded string.
+        const esp_app_desc_t *desc = esp_app_get_description();
+        char versionLabel[40];
+        snprintf(versionLabel, sizeof(versionLabel), "v%s", desc->version);
+        applyBigScreenSplashLayout(ui_Splash1, ui_imgSplash1, versionLabel);
+    }
 #endif
 }
 
@@ -310,8 +343,12 @@ void UI::splash2ScreenInit(void)
     lv_img_cache_invalidate_src(m_theme->getInitscreen2());
 
 #ifdef DISPLAY_PROFILE_YYSLUPING_480X320
-    applyBigScreenSplashLayout(ui_Splash2, ui_Image1);
-    bigValue(ui_lbConnect, 268, 84, 184, &ui_font_OpenSansBold24, BIG_TEXT, LV_TEXT_ALIGN_RIGHT);
+    // Second splash stage: same typographic title as splash1, with the
+    // existing "Connecting..." label repurposed as the status subtitle
+    // (recentered here instead of its legacy right-of-logo position, since
+    // there is no more logo image to sit next to).
+    applyBigScreenSplashLayout(ui_Splash2, ui_Image1, nullptr);
+    bigValue(ui_lbConnect, 0, 188, 480, &ui_font_OpenSansBold14, BIG_MUTED, LV_TEXT_ALIGN_CENTER);
 #endif
 }
 

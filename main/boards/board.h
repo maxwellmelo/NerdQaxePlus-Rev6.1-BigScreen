@@ -67,6 +67,12 @@ public:
     int m_defaultAsicFrequency;
     int m_defaultAsicVoltageMillis;
 
+    // Optional startup operating point. When the thermal governor is active it
+    // asks the board to come up at gv_fmin with the curve voltage instead of
+    // jumping straight to the saved (ceiling) pair. 0 = use the saved pair.
+    int m_initFreqOverride = 0;
+    int m_initVoltageOverride = 0;
+
     // default settings
     int m_ecoAsicFrequency;
     int m_ecoAsicVoltageMillis;
@@ -213,6 +219,24 @@ public:
     int getAsicFrequency()
     {
         return m_asicFrequency;
+    }
+
+    // Startup operating point used by initAsics(). Without an override these
+    // return the saved pair, so the upstream behaviour is unchanged.
+    void setInitOperatingPoint(int freqMhz, int voltageMillis)
+    {
+        m_initFreqOverride = freqMhz;
+        m_initVoltageOverride = voltageMillis;
+    }
+
+    int getInitFrequency()
+    {
+        return m_initFreqOverride ? m_initFreqOverride : m_asicFrequency;
+    }
+
+    int getInitVoltageMillis()
+    {
+        return m_initVoltageOverride ? m_initVoltageOverride : m_asicVoltageMillis;
     }
 
     int getAbsMaxAsicFrequency() {

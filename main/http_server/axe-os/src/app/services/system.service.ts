@@ -9,6 +9,7 @@ import { AsicInfo } from '../models/IAsicInfo';
 import { environment } from '../../environments/environment';
 import { IInfluxDB } from '../models/IInfluxDB';
 import { IUpdateStatus } from '../models/IUpdateStatus';
+import { IScreensSettings } from '../models/IScreensSettings';
 import { HttpHeaders } from '@angular/common/http';
 
 const defaultInfo: ISystemInfo = {
@@ -366,5 +367,21 @@ export class SystemService {
   // only returns enabled flag
   public getOTPStatus(): Observable<{ enabled: boolean }> {
     return this.httpClient.get('/api/otp/status') as Observable<{ enabled: boolean }>;
+  }
+
+  // Screens: GET /api/system/screens
+  public getScreens(uri: string = ''): Observable<IScreensSettings> {
+    return this.httpClient.get<IScreensSettings>(`${uri}/api/system/screens`);
+  }
+
+  // Screens: PATCH /api/system/screens
+  public updateScreens(uri: string = '', payload: {
+    screens?: { id: number; enabled: boolean; secs: number }[];
+    defaultSecs?: number;
+    powerBill?: { currency: string; pricePerKwh: number };
+  }, totp?: string): Observable<IScreensSettings> {
+    let headers = new HttpHeaders();
+    if (totp) headers = headers.set('X-TOTP', totp);
+    return this.httpClient.patch<IScreensSettings>(`${uri}/api/system/screens`, payload, { headers });
   }
 }

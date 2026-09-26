@@ -76,6 +76,9 @@ DisplayDriver::DisplayDriver() {
     m_shutdownStartTime = 0;
     m_shutdownLabel = nullptr;
     m_buttonIgnoreUntil_us = 0;
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+    m_screenManager.begin(m_lvglMutex);
+#endif
 }
 
 void DisplayDriver::loadSettings() {
@@ -304,6 +307,17 @@ bool DisplayDriver::enterState(UiState s, int64_t now)
     }
     UiState previousState = m_state;
 
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+    // Leaving Mining: tear down whichever rodizio screen is alive so it is
+    // not left running (and consuming RAM) while Mining is not the active
+    // DisplayDriver state. See screen_manager.h for the locking contract
+    // (enter()/exit() take no lock themselves; they rely on the same
+    // convention the rest of this function already follows).
+    if (previousState == UiState::Mining && s != UiState::Mining) {
+        m_screenManager.exit();
+    }
+#endif
+
     m_state = s;
     m_stateStart_us = now;
 
@@ -342,6 +356,13 @@ bool DisplayDriver::enterState(UiState s, int64_t now)
         } else {
             safe_screen_change(m_ui->ui_MiningScreen, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0);
         }
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+        // Big profile: the rodizio (screen_manager.h) owns what's shown on
+        // top of ui_MiningScreen from here on; button 1 no longer leaves
+        // Mining to cycle SettingsScreen/BTCScreen/GlobalStats (see
+        // updateState()'s Mining case below).
+        m_screenManager.enter(m_ui->ui_MiningScreen, now);
+#endif
         break;
 
     case UiState::SettingsScreen:
@@ -416,12 +437,22 @@ void DisplayDriver::updateState(int64_t now, bool btn1Press, bool btn2Press, boo
         if (ledControl(btn1Press, btn2Press)) {
             break;
         }
+#ifdef DISPLAY_PROFILE_YYSLUPING_480X320
+        // Big profile: button 1 advances the rodizio in place instead of
+        // leaving Mining for SettingsScreen (see enterState()'s Mining
+        // case). SettingsScreen/BTCScreen/GlobalStats stay in the enum and
+        // switch (still used by the small profile below) but are no longer
+        // reachable from here.
+        m_screenManager.tick(m_ui->ui_MiningScreen, now, btn1Press);
+        enterState(UiState::Mining, now);
+#else
         if (btn1Press) {
             APIs_FETCHER.enableFetching();
             enterState(UiState::SettingsScreen, now);
         } else {
             enterState(UiState::Mining, now);
         }
+#endif
         break;
     case UiState::SettingsScreen:
         if (ledControl(btn1Press, btn2Press)) {
@@ -914,11 +945,27 @@ void DisplayDriver::updateCurrentSettings(int pool)
         lv_label_set_text(m_ui->ui_lbPortSet, strData); // Update label
     }
 
-    snprintf(strData, sizeof(strData), "%d", board->getAsicFrequency());
-    lv_label_set_text(m_ui->ui_lbFreqSet, strData); // Update label
+#if defined(DISPLAY_PROFILE_YYSLUPING_480X320)
+    // With the governor running, the saved pair is only the ceiling, so show
+    // "effective/ceiling" (e.g. 756/800 and 1230/1250). Only on the 480x320
+    // profile: the 320x170 layouts have no room for the longer string.
+    if (POWER_MANAGEMENT_MODULE.getGovernorMode()) {
+        snprintf(strData, sizeof(strData), "%d/%d", (int) POWER_MANAGEMENT_MODULE.getEffectiveFrequency(),
+                 board->getAsicFrequency());
+        lv_label_set_text(m_ui->ui_lbFreqSet, strData);
 
-    snprintf(strData, sizeof(strData), "%d", board->getAsicVoltageMillis());
-    lv_label_set_text(m_ui->ui_lbVcoreSet, strData); // Update label
+        snprintf(strData, sizeof(strData), "%d/%d", POWER_MANAGEMENT_MODULE.getEffectiveVoltageMillis(),
+                 board->getAsicVoltageMillis());
+        lv_label_set_text(m_ui->ui_lbVcoreSet, strData);
+    } else
+#endif
+    {
+        snprintf(strData, sizeof(strData), "%d", board->getAsicFrequency());
+        lv_label_set_text(m_ui->ui_lbFreqSet, strData); // Update label
+
+        snprintf(strData, sizeof(strData), "%d", board->getAsicVoltageMillis());
+        lv_label_set_text(m_ui->ui_lbVcoreSet, strData); // Update label
+    }
 
     switch (m_tempControlMode) {
         case 1:

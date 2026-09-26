@@ -31,7 +31,8 @@
     "SWARM": "Essaim",
     "INFLUXDB": "InfluxDB",
     "ALERTS": "Alertes",
-    "SECURITY": "Sécurité"
+    "SECURITY": "Sécurité",
+    "SCREENS": "Écrans"
   },
   "HOME": {
     "HASH_RATE": "Taux de Hachage",
@@ -549,5 +550,28 @@
     "THIS_DEVICE_FORGOTTEN": "Ce navigateur a été oublié.",
     "NO_TRUSTED_DEVICE_HELP": "Aucune session approuvée dans ce navigateur. Les actions protégées demanderont un code à 6 chiffres jusqu’à ce que vous choisissiez « Se souvenir de ce navigateur ».",
     "NOT_TRUSTED": "Non approuvé"
+  },
+  "SCREENS": {
+    "TITLE": "Écrans",
+    "DESCRIPTION": "Configurez les écrans affichés sur l’écran du mineur et la durée d’affichage de chacun.",
+    "DEFAULT_SECS": "Durée par défaut (s)",
+    "APPLY_TO_ALL": "Appliquer à tous",
+    "ACTIVE_TOGGLE_LABEL": "Activer l’écran",
+    "SECONDS_LABEL": "Secondes",
+    "CYCLE_SUMMARY": "{{count}} écrans actifs · cycle complet de {{minutes}} min {{seconds}} s",
+    "NO_ACTIVE_SCREENS": "Au moins un écran doit être activé.",
+    "INVALID_SECONDS": "Saisissez un nombre entier entre {{min}} et {{max}} secondes.",
+    "UNSUPPORTED_FIRMWARE": "Le firmware installé ne prend pas encore en charge ce réglage.",
+    "SETTINGS_SAVED": "Paramètres des écrans enregistrés avec succès.",
+    "SETTINGS_SAVE_FAILED": "Impossible d’enregistrer les paramètres des écrans.",
+    "LOADING_FAILED": "Échec du chargement des paramètres des écrans.",
+    "DISCARD": "Ignorer",
+    "POWER_BILL_TITLE": "Facture d'électricité",
+    "POWER_BILL_DESCRIPTION": "Suivez le coût électrique estimé de ce mineur en indiquant votre devise locale et le prix par kWh.",
+    "CURRENCY_LABEL": "Devise",
+    "INVALID_CURRENCY": "Saisissez un symbole de devise entre 1 et 4 caractères.",
+    "PRICE_PER_KWH_LABEL": "Prix par kWh",
+    "PRICE_PER_KWH_PLACEHOLDER": "ex. 0,95",
+    "INVALID_PRICE_PER_KWH": "Saisissez un nombre entre {{min}} et {{max}}."
   }
 }

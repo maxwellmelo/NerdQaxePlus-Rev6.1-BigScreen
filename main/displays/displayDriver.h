@@ -10,6 +10,10 @@
 #include "ui_ipc.h"
 #include "stratum/stratum_manager.h"
 
+#if defined(DISPLAY_PROFILE_YYSLUPING_480X320)
+#include "screens/screen_manager.h" // Mining-state screen rodizio (big profile only)
+#endif
+
 /* INCLUDES ------------------------------------------------------------------*/
 
 /* MACROS --------------------------------------------------------------------*/
@@ -127,6 +131,13 @@ class DisplayDriver {
     bool m_screenAnimationRunning = false;
 
     UI *m_ui;
+
+#if defined(DISPLAY_PROFILE_YYSLUPING_480X320)
+    // Owns the Mining-state screen rodizio (screens/screen_manager.h). Only
+    // exists on the big profile: the small 320x170 profile keeps the
+    // original SettingsScreen/BTCScreen/GlobalStats button cycle untouched.
+    ScreenManager m_screenManager;
+#endif
 
     // Helper methods for LVGL handling
     static bool notifyLvglFlushReady(esp_lcd_panel_io_handle_t panelIo, esp_lcd_panel_io_event_data_t *edata, void *userCtx);

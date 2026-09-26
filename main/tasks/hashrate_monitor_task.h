@@ -84,11 +84,16 @@ class HashrateMonitor {
     Asic *m_asic = nullptr;
 
     void setChipHashrate(int nr, float temp);
-    float getChipHashrate(int nr);
     float getTotalChipHashrate();
 
   public:
     HashrateMonitor();
+
+    // Per-chip smoothed hashrate (GH/s), 0.0f if nr is out of range. Made
+    // public (was private) so the display data layer (main/ui_data.cpp) can
+    // fill UiState::chipGhs[] without a new dependency; implementation is
+    // unchanged, only the access section moved.
+    float getChipHashrate(int nr);
 
     // Start the background task. period_ms = cadence of measurements,
     // window_ms = measurement window length before READ, settle_ms = RX settle time after READ.

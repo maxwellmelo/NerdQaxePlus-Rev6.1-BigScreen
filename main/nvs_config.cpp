@@ -137,6 +137,46 @@ void nvs_config_set_u64(const char *key, const uint64_t value)
     nvs_close(handle);
 }
 
+bool nvs_config_get_blob(const char *key, void *out, size_t len)
+{
+    nvs_handle handle;
+    esp_err_t err;
+    err = nvs_open(NVS_CONFIG_NAMESPACE, NVS_READONLY, &handle);
+    if (err != ESP_OK) {
+        return false;
+    }
+
+    size_t actual_len = len;
+    err = nvs_get_blob(handle, key, out, &actual_len);
+    nvs_close(handle);
+
+    // Require an exact size match: a stale/short blob from an older
+    // firmware would otherwise partially fill `out` and leave the rest
+    // uninitialized in the caller's stack/PSRAM buffer.
+    if (err != ESP_OK || actual_len != len) {
+        return false;
+    }
+    return true;
+}
+
+void nvs_config_set_blob(const char *key, const void *data, size_t len)
+{
+    nvs_handle handle;
+    esp_err_t err;
+    err = nvs_open(NVS_CONFIG_NAMESPACE, NVS_READWRITE, &handle);
+    if (err != ESP_OK) {
+        ESP_LOGW(TAG, "Could not open nvs");
+        return;
+    }
+
+    err = nvs_set_blob(handle, key, data, len);
+    if (err != ESP_OK) {
+        ESP_LOGW(TAG, "Could not write nvs blob key: %s", key);
+    }
+
+    nvs_close(handle);
+}
+
 bool nvs_config_has_u16(const char *key)
 {
     nvs_handle handle;

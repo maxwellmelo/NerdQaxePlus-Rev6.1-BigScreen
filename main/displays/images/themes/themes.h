@@ -6,13 +6,17 @@
 
 class Theme {
   protected:
-    const lv_img_dsc_t *ui_img_initscreen2;
-    const lv_img_dsc_t *ui_img_miningscreen2;
-    const lv_img_dsc_t *ui_img_portalscreen;
-    const lv_img_dsc_t *ui_img_btcscreen;
-    const lv_img_dsc_t *ui_img_settingsscreen;
-    const lv_img_dsc_t *ui_img_splashscreen2;
-    const lv_img_dsc_t *ui_img_globalStats;
+    // Default-initialized to nullptr so that on profiles which strip the
+    // ThemeXxx subclass constructor bodies (see below), a freshly
+    // constructed Theme/ThemeXxx never holds a dangling/garbage pointer:
+    // callers must null-check the getters instead of assuming a valid image.
+    const lv_img_dsc_t *ui_img_initscreen2 = nullptr;
+    const lv_img_dsc_t *ui_img_miningscreen2 = nullptr;
+    const lv_img_dsc_t *ui_img_portalscreen = nullptr;
+    const lv_img_dsc_t *ui_img_btcscreen = nullptr;
+    const lv_img_dsc_t *ui_img_settingsscreen = nullptr;
+    const lv_img_dsc_t *ui_img_splashscreen2 = nullptr;
+    const lv_img_dsc_t *ui_img_globalStats = nullptr;
 
   public:
     // Getters
@@ -148,6 +152,12 @@ LV_IMG_DECLARE(ui_img_NerdQX_globalStats_png);
 class ThemeNerdoctaxegamma : public Theme {
 public:
     ThemeNerdoctaxegamma() {
+        // Body compiled out on the 480x320 profile: nothing there uses Theme
+        // images, so keeping this empty lets themes.c (and its ~1.14 MB of
+        // PNG data) be dropped from SRCS entirely on that profile (see
+        // main/CMakeLists.txt). Theme's members default to nullptr, so
+        // getters return nullptr and callers must null-check.
+#ifndef DISPLAY_PROFILE_YYSLUPING_480X320
         setInitscreen2(&ui_img_NerdOctaxeGamma_initscreen2_png);
         setMiningscreen2(&ui_img_NerdOctaxeGamma_miningscreen2_png);
         setPortalscreen(&ui_img_NerdOctaxeGamma_portalscreen_png);
@@ -155,6 +165,7 @@ public:
         setSettingsscreen(&ui_img_NerdOctaxeGamma_settingsscreen_png);
         setSplashscreen2(&ui_img_NerdOctaxeGamma_splashscreen2_png);
         setGlobalstats(&ui_img_NerdOctaxeGamma_globalStats_png);
+#endif
     }
 };
 
@@ -162,6 +173,7 @@ public:
 class ThemeNerdqaxeplus : public Theme {
 public:
     ThemeNerdqaxeplus() {
+#ifndef DISPLAY_PROFILE_YYSLUPING_480X320
         setInitscreen2(&ui_img_NerdQaxePlus_initscreen2_png);
         setMiningscreen2(&ui_img_NerdQaxePlus_miningscreen2_png);
         setPortalscreen(&ui_img_NerdQaxePlus_portalscreen_png);
@@ -169,6 +181,7 @@ public:
         setSettingsscreen(&ui_img_NerdQaxePlus_settingsscreen_png);
         setSplashscreen2(&ui_img_NerdQaxePlus_splashscreen2_png);
         setGlobalstats(&ui_img_NerdQaxePlus_globalStats_png);
+#endif
     }
 };
 
@@ -176,6 +189,7 @@ public:
 class ThemeNerdaxe : public Theme {
 public:
     ThemeNerdaxe() {
+#ifndef DISPLAY_PROFILE_YYSLUPING_480X320
         setInitscreen2(&ui_img_NerdAxe_initscreen2_png);
         setMiningscreen2(&ui_img_NerdAxe_miningscreen2_png);
         setPortalscreen(&ui_img_NerdAxe_portalscreen_png);
@@ -183,6 +197,7 @@ public:
         setSettingsscreen(&ui_img_NerdAxe_settingsscreen_png);
         setSplashscreen2(&ui_img_NerdAxe_splashscreen2_png);
         setGlobalstats(&ui_img_NerdAxe_globalStats_png);
+#endif
     }
 };
 
@@ -190,6 +205,7 @@ public:
 class ThemeNerdoctaxeplus : public Theme {
 public:
     ThemeNerdoctaxeplus() {
+#ifndef DISPLAY_PROFILE_YYSLUPING_480X320
         setInitscreen2(&ui_img_NerdOctaxePlus_initscreen2_png);
         setMiningscreen2(&ui_img_NerdOctaxePlus_miningscreen2_png);
         setPortalscreen(&ui_img_NerdOctaxePlus_portalscreen_png);
@@ -197,6 +213,7 @@ public:
         setSettingsscreen(&ui_img_NerdOctaxePlus_settingsscreen_png);
         setSplashscreen2(&ui_img_NerdOctaxePlus_splashscreen2_png);
         setGlobalstats(&ui_img_NerdOctaxePlus_globalStats_png);
+#endif
     }
 };
 
@@ -204,6 +221,7 @@ public:
 class ThemeNerdeko : public Theme {
 public:
     ThemeNerdeko() {
+#ifndef DISPLAY_PROFILE_YYSLUPING_480X320
         setInitscreen2(&ui_img_NerdEko_initscreen2_png);
         setMiningscreen2(&ui_img_NerdEko_miningscreen2_png);
         setPortalscreen(&ui_img_NerdEko_portalscreen_png);
@@ -211,6 +229,7 @@ public:
         setSettingsscreen(&ui_img_NerdEko_settingsscreen_png);
         setSplashscreen2(&ui_img_NerdEko_splashscreen2_png);
         setGlobalstats(&ui_img_NerdEko_globalStats_png);
+#endif
     }
 };
 
@@ -218,6 +237,7 @@ public:
 class ThemeNerdhaxegamma : public Theme {
 public:
     ThemeNerdhaxegamma() {
+#ifndef DISPLAY_PROFILE_YYSLUPING_480X320
         setInitscreen2(&ui_img_NerdHaxeGamma_initscreen2_png);
         setMiningscreen2(&ui_img_NerdHaxeGamma_miningscreen2_png);
         setPortalscreen(&ui_img_NerdHaxeGamma_portalscreen_png);
@@ -225,6 +245,7 @@ public:
         setSettingsscreen(&ui_img_NerdHaxeGamma_settingsscreen_png);
         setSplashscreen2(&ui_img_NerdHaxeGamma_splashscreen2_png);
         setGlobalstats(&ui_img_NerdHaxeGamma_globalStats_png);
+#endif
     }
 };
 
@@ -232,6 +253,7 @@ public:
 class ThemeNerdaxegamma : public Theme {
 public:
     ThemeNerdaxegamma() {
+#ifndef DISPLAY_PROFILE_YYSLUPING_480X320
         setInitscreen2(&ui_img_NerdAxeGamma_initscreen2_png);
         setMiningscreen2(&ui_img_NerdAxeGamma_miningscreen2_png);
         setPortalscreen(&ui_img_NerdAxeGamma_portalscreen_png);
@@ -239,6 +261,7 @@ public:
         setSettingsscreen(&ui_img_NerdAxeGamma_settingsscreen_png);
         setSplashscreen2(&ui_img_NerdAxeGamma_splashscreen2_png);
         setGlobalstats(&ui_img_NerdAxeGamma_globalStats_png);
+#endif
     }
 };
 
@@ -246,6 +269,7 @@ public:
 class ThemeNerdqaxeplus2 : public Theme {
 public:
     ThemeNerdqaxeplus2() {
+#ifndef DISPLAY_PROFILE_YYSLUPING_480X320
         setInitscreen2(&ui_img_NerdQaxePlus2_initscreen2_png);
         setMiningscreen2(&ui_img_NerdQaxePlus2_miningscreen2_png);
         setPortalscreen(&ui_img_NerdQaxePlus2_portalscreen_png);
@@ -253,6 +277,7 @@ public:
         setSettingsscreen(&ui_img_NerdQaxePlus2_settingsscreen_png);
         setSplashscreen2(&ui_img_NerdQaxePlus2_splashscreen2_png);
         setGlobalstats(&ui_img_NerdQaxePlus2_globalStats_png);
+#endif
     }
 };
 
@@ -260,6 +285,7 @@ public:
 class ThemeNerdqx : public Theme {
 public:
     ThemeNerdqx() {
+#ifndef DISPLAY_PROFILE_YYSLUPING_480X320
         setInitscreen2(&ui_img_NerdQX_initscreen2_png);
         setMiningscreen2(&ui_img_NerdQX_miningscreen2_png);
         setPortalscreen(&ui_img_NerdQX_portalscreen_png);
@@ -267,6 +293,7 @@ public:
         setSettingsscreen(&ui_img_NerdQX_settingsscreen_png);
         setSplashscreen2(&ui_img_NerdQX_splashscreen2_png);
         setGlobalstats(&ui_img_NerdQX_globalStats_png);
+#endif
     }
 };
 

@@ -31,7 +31,8 @@
     "SWARM": "Rój",
     "INFLUXDB": "InfluxDB",
     "ALERTS": "Alerty",
-    "SECURITY": "Bezpieczeństwo"
+    "SECURITY": "Bezpieczeństwo",
+    "SCREENS": "Ekrany"
   },
   "HOME": {
     "HASH_RATE": "Moc obliczeniowa",
@@ -559,5 +560,28 @@
     "THIS_DEVICE_FORGOTTEN": "Ta przeglądarka została zapomniana.",
     "NO_TRUSTED_DEVICE_HELP": "Brak zaufanej sesji w tej przeglądarce. Chronione działania będą wymagać 6-cyfrowego kodu, aż wybierzesz \"Zapamiętaj tę przeglądarkę\".",
     "NOT_TRUSTED": "Niezaufane"
+  },
+  "SCREENS": {
+    "TITLE": "Ekrany",
+    "DESCRIPTION": "Skonfiguruj, które ekrany są wyświetlane na wyświetlaczu koparki i jak długo każdy z nich jest widoczny.",
+    "DEFAULT_SECS": "Domyślny czas (s)",
+    "APPLY_TO_ALL": "Zastosuj do wszystkich",
+    "ACTIVE_TOGGLE_LABEL": "Włącz ekran",
+    "SECONDS_LABEL": "Sekundy",
+    "CYCLE_SUMMARY": "{{count}} aktywnych ekranów · pełny cykl {{minutes}} min {{seconds}} s",
+    "NO_ACTIVE_SCREENS": "Co najmniej jeden ekran musi być włączony.",
+    "INVALID_SECONDS": "Podaj liczbę całkowitą od {{min}} do {{max}} sekund.",
+    "UNSUPPORTED_FIRMWARE": "Zainstalowane oprogramowanie nie obsługuje jeszcze tego ustawienia.",
+    "SETTINGS_SAVED": "Ustawienia ekranów zostały pomyślnie zapisane.",
+    "SETTINGS_SAVE_FAILED": "Nie można było zapisać ustawień ekranów.",
+    "LOADING_FAILED": "Nie udało się załadować ustawień ekranów.",
+    "DISCARD": "Odrzuć",
+    "POWER_BILL_TITLE": "Rachunek za prąd",
+    "POWER_BILL_DESCRIPTION": "Śledź szacowany koszt energii elektrycznej tej koparki, podając swoją lokalną walutę i cenę za kWh.",
+    "CURRENCY_LABEL": "Waluta",
+    "INVALID_CURRENCY": "Podaj symbol waluty o długości od 1 do 4 znaków.",
+    "PRICE_PER_KWH_LABEL": "Cena za kWh",
+    "PRICE_PER_KWH_PLACEHOLDER": "np. 0,95",
+    "INVALID_PRICE_PER_KWH": "Podaj liczbę od {{min}} do {{max}}."
   }
 }

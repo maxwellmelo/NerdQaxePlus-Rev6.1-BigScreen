@@ -11,6 +11,11 @@ CONFIG_HTTPD_MAX_URI_LEN=2048
 CONFIG_LV_FONT_MONTSERRAT_10=y
 CONFIG_LV_FONT_MONTSERRAT_14=y
 CONFIG_LV_COLOR_16_SWAP=y
+# The firmware build takes LVGL options from Kconfig (CONFIG_LV_CONF_SKIP=y):
+# main/displays/lv_conf.h is NOT read by it. The new screens use compressed
+# (RLE) bitmap fonts, so decompression must be enabled here - without it every
+# glyph of those fonts renders blank on the device.
+CONFIG_LV_USE_FONT_COMPRESSED=y
 
 # optimize build
 CONFIG_COMPILER_OPTIMIZATION_PERF=y

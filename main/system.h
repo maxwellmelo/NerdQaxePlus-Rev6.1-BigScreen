@@ -134,6 +134,13 @@ class System {
         m_boardError = error;
     }
 
+    // The governor and the direction-aware setting application must never
+    // re-enable the buck while a board error is latched.
+    Board::Error getBoardError() const
+    {
+        return m_boardError;
+    }
+
     // WiFi-related getters and setters
     const char *getWifiStatus() const
     {
