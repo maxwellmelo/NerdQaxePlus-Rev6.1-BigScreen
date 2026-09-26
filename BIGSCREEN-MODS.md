@@ -2,7 +2,11 @@
 
 This fork adds a thermal/electrical governor, 15 new rotating display screens
 and their backing data/API layer, and a couple of small build-time changes.
-Everything below is additive on top of the upstream `thermal-governor` branch.
+Everything below is a single commit added on top of commit `661273b`
+("Change image format in README") of `XTVDDICT/NerdQaxePlus-Rev6.1-BigScreen`'s
+`main` branch - upstream has no `thermal-governor` branch. That upstream
+repository is itself a fork of `shufps/ESP-Miner-NerdQAxePlus` with the
+YYSLUPING NerdQAxe++ Rev 6.1 480x320 display profile added.
 
 ## a) Thermal governor
 
